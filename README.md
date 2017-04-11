@@ -1,4 +1,4 @@
-# trvlr.ch Backend
+# trvlr.ch backend
 
 The backend for trvlr is based on the spring framework and provides a web socket interface for communication 
 between clients.
