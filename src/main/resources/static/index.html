@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello WebSocket</title>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="/app.js"></script>
+</head>
+<body>
+    <div id="main-content" class="container">
+        <div class="row">
+
+            <div class="col-md-6">
+                <form id="room-form" class="form-inline">
+                    <div class="form-group">
+                        <input placeholder="Room ID" type="text" id="room" class="form-control">
+                    </div>
+                    <button class="btn btn-default" type="submit">Connect</button>
+                </form>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table id="conversation" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Messages</th>
+                    </tr>
+                    </thead>
+                    <tbody id="messages">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <form id="name-form" class="form-inline">
+                    <div class="form-group">
+                        <input placeholder="Name" type="text" id="name" class="form-control" >
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-9">
+                <form id="message-form" class="form-inline">
+                    <div class="form-group">
+                        <input type="text" id="message" class="form-control" placeholder="Message">
+                    </div>
+                    <button class="btn btn-default" type="submit">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
