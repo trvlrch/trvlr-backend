@@ -6,13 +6,17 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath "io.spring.gradle:dependency-management-plugin:1.0.2.RELEASE"
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
 	}
 }
 
+
 apply plugin: 'java'
-apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
 
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
@@ -23,13 +27,22 @@ repositories {
 
 
 dependencies {
-	compile("org.springframework.boot:spring-boot-starter-websocket")
-	compile("org.webjars:webjars-locator")
-	compile("org.webjars:sockjs-client:1.0.2")
-	compile("org.webjars:stomp-websocket:2.3.3")
+	compile "org.springframework.boot:spring-boot-starter-websocket",
+			"org.springframework.boot:spring-boot-starter-web",
+			"org.springframework.boot:spring-boot-starter-data-redis",
 
-	compile("org.webjars:bootstrap:3.3.7")
-	compile("org.webjars:jquery:3.1.0")
+			"org.springframework.session:spring-session",
+			"org.springframework.security:spring-security-web",
+			"org.springframework.security:spring-security-config",
+			"org.springframework.security:spring-security-messaging",
+			"org.springframework.security:spring-security-data",
+			"com.google.firebase:firebase-admin:4.1.7",
 
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+			"org.webjars:webjars-locator",
+			"org.webjars:sockjs-client:1.0.2",
+			"org.webjars:stomp-websocket:2.3.3",
+			"org.webjars:bootstrap:3.3.7",
+			"org.webjars:jquery:3.1.0"
+
+	testCompile "org.springframework.boot:spring-boot-starter-test"
 }
