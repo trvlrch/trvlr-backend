@@ -35,5 +35,4 @@ public class ChatRoomController {
 
 		return room.getAllTravelers();
 	}
-
 }

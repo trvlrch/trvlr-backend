@@ -1,0 +1,9 @@
+machine:
+  java:
+    version: openjdk7
+
+deployment:
+  production:
+    branch: production
+    commands:
+      - ./deploy_prod.sh
