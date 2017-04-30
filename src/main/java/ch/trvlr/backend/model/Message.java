@@ -1,5 +1,6 @@
 package ch.trvlr.backend.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -11,26 +12,32 @@ public class Message {
 
 	private int id;
 	private Traveler author;
-    private String text;
-    private Date timestamp;
+	private String text;
+	private Date timestamp;
 
-    public int getId() {
-        return this.id;
-    }
+	public int getId() {
+		return this.id;
+	}
 
-    public Traveler getAuthor() {
-        return this.author;
-    }
+	public String getAuthor() {
+		// return only name of the author
+		// otherwise each client will receive all user details
+		return this.author.getName();
+	}
 
-    public String getText() {
-        return this.text;
-    }
+	public void setAuthor(Traveler author) {
+		this.author = author;
+	}
 
-    public void setText(String text) {
-        this.text = text;
-    }
+	public String getText() {
+		return this.text;
+	}
 
-    public Date getTimestamp() {
-        return this.timestamp;
-    }
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public Date getTimestamp() {
+		return this.timestamp;
+	}
 }

@@ -1,32 +1,31 @@
 package ch.trvlr.backend.config;
 
+import ch.trvlr.backend.interceptor.AuthenticationInterceptor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.session.ExpiringSession;
-import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+
+import org.springframework.web.socket.config.annotation.*;
 
 
 @Configuration
-@EnableScheduling
 @EnableWebSocketMessageBroker
-public class WebSocketConfig extends AbstractSessionWebSocketMessageBrokerConfigurer<ExpiringSession> implements WebSocketConfigurer {
+public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
+	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {
 		config.enableSimpleBroker("/topic",  "/queue");
 		config.setApplicationDestinationPrefixes("/app");
 	}
 
-	public void configureStompEndpoints(StompEndpointRegistry registry) {
+	@Override
+	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/socket").withSockJS();
 	}
 
 	@Override
-	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-
+	public void configureClientInboundChannel(ChannelRegistration registration) {
+		registration.setInterceptors(new AuthenticationInterceptor());
 	}
+
 }

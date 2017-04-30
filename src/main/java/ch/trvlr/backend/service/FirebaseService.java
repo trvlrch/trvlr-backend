@@ -1,16 +1,11 @@
 package ch.trvlr.backend.service;
 
-import ch.trvlr.backend.model.User;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseCredentials;
-import com.google.firebase.database.FirebaseDatabase;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
@@ -25,7 +20,7 @@ public class FirebaseService implements ApiService {
 	private static final String identityApiUrl = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?";
 
 	private static FirebaseAuth auth = null;
-	
+
 	public FirebaseService() {
 		if (auth == null) {
 			FirebaseApp app = initialize();
@@ -64,7 +59,6 @@ public class FirebaseService implements ApiService {
 	}
 
 	public Boolean validateToken(String token) {
-		System.out.println("no");
 		auth.verifyIdToken(token)
 				.addOnSuccessListener(decodedToken -> {
 					String uid = decodedToken.getUid();
@@ -75,7 +69,7 @@ public class FirebaseService implements ApiService {
 		return true;
 	}
 
-	public User getUserDetail() {
+	/*public User getUserDetail() {
 
 	}
 
@@ -104,5 +98,6 @@ public class FirebaseService implements ApiService {
 		conn.disconnect();
 
 		return jsonObject;
-	}
+	}*/
+}
 

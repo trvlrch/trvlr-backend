@@ -29,13 +29,13 @@ repositories {
 dependencies {
 	compile "org.springframework.boot:spring-boot-starter-websocket",
 			"org.springframework.boot:spring-boot-starter-web",
-			"org.springframework.boot:spring-boot-starter-data-redis",
+			// "org.springframework.boot:spring-boot-starter-data-redis",
 
-			"org.springframework.session:spring-session",
-			"org.springframework.security:spring-security-web",
-			"org.springframework.security:spring-security-config",
-			"org.springframework.security:spring-security-messaging",
-			"org.springframework.security:spring-security-data",
+			//"org.springframework.session:spring-session",
+			//"org.springframework.security:spring-security-web",
+			//"org.springframework.security:spring-security-config",
+			//"org.springframework.security:spring-security-messaging",
+			//"org.springframework.security:spring-security-data",
 			"com.google.firebase:firebase-admin:4.1.7",
 			"org.json:json",
 

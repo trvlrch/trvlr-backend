@@ -45,7 +45,7 @@ $(function () {
             stompClient.subscribe('/topic/chat/' + room, function (message) {
                 console.log(message);
                 obj = JSON.parse(message.body);
-                showMessage(obj.name + ": " + obj.text);
+                showMessage(obj.author + ": " + obj.text);
             });
         });
     };
@@ -66,8 +66,7 @@ $(function () {
     $( "#message-form" ).submit(function(e) {
         e.preventDefault();
 
-        var name = $("#name").val();
         var text = $("#message").val();
-        stompClient.send("/app/chat/" + room, {}, JSON.stringify({'name': name, 'text': text}));
+        stompClient.send("/app/chat/" + room, {}, JSON.stringify({'text': text}));
     });
 });
