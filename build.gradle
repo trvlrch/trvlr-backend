@@ -24,6 +24,7 @@ war {
 
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
 	mavenCentral()
@@ -43,6 +44,5 @@ dependencies {
 			"org.webjars:stomp-websocket:2.3.3",
 			"org.webjars:bootstrap:3.3.7",
 			"org.webjars:jquery:3.1.0"
-
-	testCompile "org.springframework.boot:spring-boot-starter-test"
+    testCompile "org.springframework.boot:spring-boot-starter-test"
 }
