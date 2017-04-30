@@ -13,16 +13,17 @@ public class Traveler implements Principal {
 	private String firstName;
 	private String lastName;
 	private String email;
-	private String authToken;
+	private String uid;
 
 	public Traveler() {
 
 	}
 
-	public Traveler(String firstName, String lastname, String email) {
+	public Traveler(String firstName, String lastname, String email, String uid) {
 		this.firstName = firstName;
 		this.lastName = lastname;
 		this.email = email;
+		this.uid = uid;
 	}
 
 	public int getId() {
@@ -53,12 +54,12 @@ public class Traveler implements Principal {
 		this.email = email;
 	}
 
-	public String getAuthToken() {
-		return this.authToken;
+	public String getUid() {
+		return this.uid;
 	}
 
-	public void setAuthToken(String authToken) {
-		this.authToken = authToken;
+	public void setUid(String authToken) {
+		this.uid = authToken;
 	}
 
 	@Override

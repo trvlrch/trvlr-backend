@@ -17,13 +17,8 @@ public class UserService {
 		api = new FirebaseService();
 	}
 
-	public Traveler loadUserByUsername(String username) {
-		// TODO get user data from firebase
-		return new Traveler();
-	}
-
-	public Boolean validateUser(String token) {
-		return api.validateToken(token);
+	public Traveler getUserByToken(String token) {
+		return api.getUserByToken(token);
 	}
 
 }

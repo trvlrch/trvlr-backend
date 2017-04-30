@@ -9,6 +9,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptorAdapter;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 
 import java.security.Principal;
@@ -21,14 +22,30 @@ import java.util.Map;
  * @author Daniel Milenkovic
  */
 public class AuthenticationInterceptor extends ChannelInterceptorAdapter {
+	private MessageChannel clientOutboundChannel;
+
+	public AuthenticationInterceptor(MessageChannel clientOutboundChannel) {
+		super();
+		this.clientOutboundChannel = clientOutboundChannel;
+	}
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
-
 		StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+		String sessionId = accessor.getSessionId();
 
 		if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 			Principal user = authenticateUser(message);
+
+			if (user == null) {
+				// send error message
+				StompHeaderAccessor headerAccessor = StompHeaderAccessor.create(StompCommand.ERROR);
+				headerAccessor.setMessage("Connection denied: invalid login");
+				headerAccessor.setSessionId(sessionId);
+				Message<byte[]> error = MessageBuilder.createMessage(new byte[0], headerAccessor.getMessageHeaders());
+				this.clientOutboundChannel.send(error);
+			}
+
 			accessor.setUser(user);
 		}
 
@@ -40,19 +57,16 @@ public class AuthenticationInterceptor extends ChannelInterceptorAdapter {
 		String token = this.parseToken(headers);
 
 		UserService service = new UserService();
-		if (service.validateUser(token)) {
-			System.out.println("valid token");
+		Traveler user = service.getUserByToken(token);
 
-			//User user = service.getUserByToken();
-			//String id = SimpMessageHeaderAccessor.getSessionId(headers);
-
-			return new Traveler("Hans", "Dampf", "yo@yo.yo"); // access authentication header(s)
+		if (user.getUid() == null) {
+			System.out.println("invalid token");
+			return null;
 		}
 
-		System.out.println("invalid token");
-		return null;
+		System.out.println("valid token");
+		return user;
 	}
-	// this.messagingTemplate.convertAndSend("/topic/friends/signin", Arrays.asList(user.getName()));
 
 	private String parseToken(MessageHeaders headers) {
 		Object headersObj = headers.get("nativeHeaders");

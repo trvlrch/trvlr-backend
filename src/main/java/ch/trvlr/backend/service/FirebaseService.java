@@ -1,11 +1,17 @@
 package ch.trvlr.backend.service;
 
+import ch.trvlr.backend.model.Traveler;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseCredentials;
+import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.tasks.Task;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -13,11 +19,12 @@ import java.net.URL;
  *
  * @author Daniel Milenkovic
  */
-public class FirebaseService implements ApiService {
+public class FirebaseService extends ApiService {
 
 	private static final String serviceAccountFilename = "serviceAccountKey.json";
 	private static final String databaseUrl = "https://trvlr-312df.firebaseio.com/";
-	private static final String identityApiUrl = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?";
+	private static final String identityApiUrl = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo";
+	private static final String apiKey = "AIzaSyDsvs8gSMuNzwpLDG-CNn6FD8aZ_0c4Jds";
 
 	private static FirebaseAuth auth = null;
 
@@ -41,7 +48,6 @@ public class FirebaseService implements ApiService {
 
 			return FirebaseApp.initializeApp(options);
 		} catch (IOException e) {
-			// TODO error handling
 			System.out.println(e.getMessage());
 			return null;
 		}
@@ -58,46 +64,49 @@ public class FirebaseService implements ApiService {
 		}
 	}
 
-	public Boolean validateToken(String token) {
-		auth.verifyIdToken(token)
-				.addOnSuccessListener(decodedToken -> {
-					String uid = decodedToken.getUid();
-					System.out.println("----------------------");
-					System.out.println(uid);
-					// TODO enable user
-				});
-		return true;
+	public Traveler getUserByToken(String token) {
+		if (validateToken(token)) {
+			return getUserDetails(token);
+		}
+		return new Traveler();
 	}
 
-	/*public User getUserDetail() {
+	private Boolean validateToken(String token) {
+		Task task = FirebaseAuth.getInstance().verifyIdToken(token);
 
+		// TODO refactor
+		// wait for task to finish
+		while (!task.isComplete()) {
+		}
+
+		FirebaseToken decodedToken = (FirebaseToken) task.getResult();
+		return decodedToken.getUid() != null && !decodedToken.getUid().isEmpty();
 	}
 
-	private JSONObject uploadToServer() throws IOException, JSONException {
-		String query = "https://example.com";
-		String json = "{\"key\":1}";
+	private Traveler getUserDetails(String token) {
+		try {
+			URL url = new URL(identityApiUrl + "?key=" + apiKey);
+			String json = "{\"idToken\":\"" + token + "\"}";
 
-		URL url = new URL(query);
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setConnectTimeout(5000);
-		conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-		conn.setDoOutput(true);
-		conn.setDoInput(true);
-		conn.setRequestMethod("POST");
+			System.out.println(token);
 
-		OutputStream os = conn.getOutputStream();
-		os.write(json.getBytes("UTF-8"));
-		os.close();
+			JSONObject result = this.post(url, json);
+			JSONArray users = result.getJSONArray("users");
 
-		// read the response
-		InputStream in = new BufferedInputStream(conn.getInputStream());
-		String result = org.apache.commons.io.IOUtils.toString(in, "UTF-8");
-		JSONObject jsonObject = new JSONObject(result);
+			System.out.println("----------------");
+			System.out.println(result.toString());
 
-		in.close();
-		conn.disconnect();
+			if (users.length() > 0) {
+				JSONObject user = (JSONObject) users.get(0);
+				// TODO move to traveler model
+				String[] name = user.getString("displayName").split(" ");
+				return new Traveler(name[0], name[1], user.getString("email"), user.getString("localId"));
+			}
 
-		return jsonObject;
-	}*/
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+		return new Traveler();
+	}
 }
 

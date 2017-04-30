@@ -10,7 +10,7 @@ public class TravelerRepository extends Repository<Traveler> {
 
     protected TravelerRepository() {
         super("Traveler", new String[] {
-                    "id", "firstname", "lastname", "email", "auth_token"
+                    "id", "firstname", "lastname", "email", "uid"
                 });
     }
 
