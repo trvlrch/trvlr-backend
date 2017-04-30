@@ -1,7 +1,7 @@
 package ch.trvlr.backend.service;
 
 
-import ch.trvlr.backend.model.User;
+import ch.trvlr.backend.model.Traveler;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,12 +16,12 @@ public class UserService {
 	private static ApiService api;
 
 	public UserService() {
-		api = new FirebaseService();
+		// api = new FirebaseService();
 	}
 
-	public User getUserByUsername(String username) throws UsernameNotFoundException {
+	public Traveler loadUserByUsername(String username) throws UsernameNotFoundException {
 		// TODO get user data from firebase
-		return new User("test");
+		return new Traveler();
 	}
 
 	public Boolean validateUser(String token) {

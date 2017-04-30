@@ -25,15 +25,11 @@ public class FirebaseService implements ApiService {
 	private static final String identityApiUrl = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?";
 
 	private static FirebaseAuth auth = null;
-	private static FirebaseDatabase db = null;
-
+	
 	public FirebaseService() {
 		if (auth == null) {
 			FirebaseApp app = initialize();
 			auth = FirebaseAuth.getInstance(app);
-			db = FirebaseDatabase.getInstance(app);
-
-			//db.
 		}
 	}
 
@@ -74,8 +70,6 @@ public class FirebaseService implements ApiService {
 					String uid = decodedToken.getUid();
 					System.out.println("----------------------");
 					System.out.println(uid);
-
-					auth.
 					// TODO enable user
 				});
 		return true;
