@@ -31,7 +31,9 @@ public class FirebaseService extends ApiService {
 	public FirebaseService() {
 		if (auth == null) {
 			FirebaseApp app = initialize();
-			auth = FirebaseAuth.getInstance(app);
+			if (app != null) {
+				auth = FirebaseAuth.getInstance(app);
+			}
 		}
 	}
 
