@@ -19,7 +19,7 @@ public class ChatController {
 
 	@MessageMapping("/chat/{roomId}")
 	public Message handleMessage(@DestinationVariable("roomId") String roomId, @Payload Message message) throws Exception {
-		System.out.print("Message received for room: " + roomId);
+		System.out.println("Message received for room: " + roomId);
 		return message;
 	}
 }

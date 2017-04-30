@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * @author Rob Winch
  */
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
 	private static ApiService api;
 
@@ -19,7 +19,7 @@ public class UserService implements UserDetailsService {
 		api = new FirebaseService();
 	}
 
-	public User loadUserByUsername(String username) throws UsernameNotFoundException {
+	public User getUserByUsername(String username) throws UsernameNotFoundException {
 		// TODO get user data from firebase
 		return new User("test");
 	}

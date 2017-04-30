@@ -37,6 +37,7 @@ dependencies {
 			"org.springframework.security:spring-security-messaging",
 			"org.springframework.security:spring-security-data",
 			"com.google.firebase:firebase-admin:4.1.7",
+			"org.json:json",
 
 			"org.webjars:webjars-locator",
 			"org.webjars:sockjs-client:1.0.2",

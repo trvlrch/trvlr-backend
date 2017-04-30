@@ -18,11 +18,19 @@ $(function () {
 
     var connect = function(room) {
         firebase.auth().signInWithPopup(provider).then(function(result) {
-            var token = result.credential.accessToken;
+            // var token = result.credential.accessToken;
             var user = result.user;
             console.log(user);
-            console.log(token);
-            createSocketConnecton(token, room);
+            firebase.auth().currentUser.getToken(/* forceRefresh */ true).then(function(idToken) {
+                // Send token to your backend via HTTPS
+                // ...
+                console.log(idToken);
+                createSocketConnecton(idToken, room);
+
+            }).catch(function(error) {
+                // Handle error
+            });
+
 
         }).catch(function(error) {
             console.error(error);

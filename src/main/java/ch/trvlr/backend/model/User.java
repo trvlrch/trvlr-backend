@@ -1,9 +1,13 @@
 package ch.trvlr.backend.model;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -11,7 +15,7 @@ import java.util.Collection;
  *
  * @author Daniel Milenkovic
  */
-public class User implements UserDetails {
+public class User implements UserDetails, Serializable {
 
 	private String id;
 	private String username;
@@ -23,7 +27,6 @@ public class User implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return AuthorityUtils.createAuthorityList("ROLE_USER");
-
 	}
 
 	@Override
