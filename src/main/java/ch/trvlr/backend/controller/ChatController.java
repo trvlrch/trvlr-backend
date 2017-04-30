@@ -18,7 +18,7 @@ import org.springframework.stereotype.Controller;
 public class ChatController {
 
 	@MessageMapping("/chat/{roomId}")
-	public Message handleMessage(@DestinationVariable("roomId") String roomId, @Payload Message message,Traveler author) throws Exception {
+	public Message handleMessage(@DestinationVariable("roomId") String roomId, @Payload Message message, Traveler author) throws Exception {
 		System.out.println("Message received for room: " + roomId);
 		System.out.println("User: " + author.toString());
 		message.setAuthor(author);
