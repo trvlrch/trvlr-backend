@@ -106,8 +106,8 @@ public abstract class Repository<T extends ISqlObject> {
 
     public boolean update(T o) throws SQLException {
         String sql = "UPDATE " + this.getTableTame() +
-                     "SET " + this.getFieldsAsStringForUpdate() +
-                     "WHERE " + this.getFields()[0] + "= ?";
+                     " SET " + this.getFieldsAsStringForUpdate() +
+                     " WHERE " + this.getFields()[0] + " = ?";
 
         PreparedStatement st = this.getDbConnection().prepareStatement(sql);
         this.prepareStatement(st, o);
@@ -143,7 +143,7 @@ public abstract class Repository<T extends ISqlObject> {
     public ArrayList<T> getAll() throws SQLException {
         ArrayList<T> result = new ArrayList<>();
         String sql = "SELECT " + this.getFieldsAsStringForSelect() +
-                     "FROM " + this.getTableTame();
+                     " FROM " + this.getTableTame();
 
         PreparedStatement p = this.dbConnection.prepareStatement(sql);
 

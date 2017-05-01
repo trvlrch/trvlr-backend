@@ -26,43 +26,60 @@ public class ChatRoomController {
 
 	@RequestMapping("/api/public-chats")
 	public List<ChatRoom> getAllPublicChats() {
-		// TODO remove mocks
-		ChatRoom foo = new PublicChat(Arrays.asList("Bern", "Zurich", "Winterthur"));
-		ChatRoom bar = new PublicChat(Arrays.asList("St Gallen", "Zurich", "Genf"));
-		List<ChatRoom> rooms = Arrays.asList(foo, bar);
-
-		// List<ChatRoom> rooms = repository.getAll();
-
-		return rooms;
+        List<ChatRoom> rooms = null;
+        try {
+            rooms = repository.getAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rooms;
 	}
 
 	@RequestMapping("/api/public-chats/search")
 	public List<ChatRoom> findChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {
-		// TODO implement
-		// return repository.findChatRoomsForConnection(from, to);
-		return getAllPublicChats();
-	}
+	    List<ChatRoom> chatRooms = null;
+        try {
+            chatRooms = repository.findChatRoomsForConnection(from, to);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return chatRooms;
+    }
 
 	@RequestMapping(path = "/api/public-chats", method = RequestMethod.POST)
 	public ChatRoom createPublicChat(@RequestBody String from, @RequestBody String to) {
 		// TODO from/to validation
-		ChatRoom room = new PublicChat(Arrays.asList(from, to));
-		if (repository.save(room)) {
-			return room;
-		} else {
-			return null;
-		}
-	}
+		ChatRoom room = new PublicChat(from, to);
+        try {
+            if (repository.save(room)) {
+                return room;
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 	@RequestMapping("/api/public-chats/{roomId}")
 	public ChatRoom getPublicChat(@PathVariable int roomId) {
-		return repository.getById(roomId);
-	}
+        try {
+            return repository.getById(roomId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 	@RequestMapping("/api/public-chats/{roomId}/travelers")
-	public List<Traveler> getAllTravelersByRoom(@PathVariable int roomId) throws SQLException {
-		ChatRoomRepository repository = ChatRoomRepository.getInstance();
-		ChatRoom room = repository.getById(roomId);
-		return room.getAllTravelers();
+	public List<Traveler> getAllTravelersByRoom(@PathVariable int roomId) {
+        try {
+            ChatRoom chatRoom = repository.getById(roomId);
+            return chatRoom.getAllTravelers();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
 	}
 }
