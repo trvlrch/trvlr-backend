@@ -41,4 +41,20 @@ public class MessageRepository extends Repository<Message> {
         statement.setDate(3, (java.sql.Date) object.getTimestamp());
         statement.setInt(4, object.getChatRoomId());
     }
+
+    public ArrayList<Message> getAllMessagesForChat(int chatId) throws SQLException {
+        ArrayList<Message> result = new ArrayList<>();
+        String sql = "SELECT " + this.getFieldsAsStringForSelect() +
+                     " FROM " + this.getTableTame() +
+                     " WHERE 'chat_room_id' = ?";
+
+        PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+        p.setInt(1, chatId);
+
+        ResultSet rs = p.executeQuery();
+        while (rs.next()) {
+            result.add(this.convertToBusinessObject(rs));
+        }
+        return result;
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class ChatRoomController {
 	}
 
 	@RequestMapping("/api/public-chats/{roomId}/travelers")
-	public List<Traveler> getAllTravelersByRoom(@PathVariable int roomId) {
+	public List<Traveler> getAllTravelersByRoom(@PathVariable int roomId) throws SQLException {
 		ChatRoomRepository repository = ChatRoomRepository.getInstance();
 		ChatRoom room = repository.getById(roomId);
 

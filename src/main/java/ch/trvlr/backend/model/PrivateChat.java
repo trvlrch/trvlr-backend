@@ -1,5 +1,6 @@
 package ch.trvlr.backend.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Date;
  */
 public class PrivateChat extends ChatRoom {
 
-    public PrivateChat(int id, Date createdOn) {
-        super(id, createdOn);
+    public PrivateChat(int id, Date createdOn, ArrayList<Traveler> travelers, ArrayList<Message> messages) {
+            super(id, createdOn, travelers, messages);
     }
 }

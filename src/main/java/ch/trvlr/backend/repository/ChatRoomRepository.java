@@ -1,13 +1,12 @@
 package ch.trvlr.backend.repository;
 
-import ch.trvlr.backend.model.ChatRoom;
-import ch.trvlr.backend.model.PrivateChat;
-import ch.trvlr.backend.model.PublicChat;
+import ch.trvlr.backend.model.*;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class ChatRoomRepository extends Repository<ChatRoom> {
@@ -32,10 +31,14 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
         Date createdOn = rs.getDate(4);
 
         // TODO find a better to get different chat types
+
+        ArrayList<Message> messages = MessageRepository.getInstance().getAllMessagesForChat(id);
+        ArrayList<Traveler> travelers = TravelerRepository.getInstance().getAllTravelersForChat(id);
+
         if (from == null || to == null)
-            return new PrivateChat(id, createdOn);
+            return new PrivateChat(id, createdOn, travelers, messages);
         else
-            return new PublicChat(id, from, to, createdOn);
+            return new PublicChat(id, from, to, createdOn, travelers, messages);
     }
 
     @Override

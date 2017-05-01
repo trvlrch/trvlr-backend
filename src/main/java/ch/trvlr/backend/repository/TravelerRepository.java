@@ -5,6 +5,7 @@ import ch.trvlr.backend.model.Traveler;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class TravelerRepository extends Repository<Traveler> {
 
@@ -12,7 +13,7 @@ public class TravelerRepository extends Repository<Traveler> {
 
     protected TravelerRepository() {
         super("Traveler", new String[] {
-                    "id", "firstname", "lastname", "email", "uid"
+                    "id", "firstname", "lastname", "email", "auth_token"
                 });
     }
 
@@ -39,4 +40,19 @@ public class TravelerRepository extends Repository<Traveler> {
         statement.setString(4, object.getUid());
     }
 
+    public ArrayList<Traveler> getAllTravelersForChat(int chatId) throws SQLException {
+        ArrayList<Traveler> result = new ArrayList<>();
+        String sql = "SELECT " + this.getFieldsAsStringForSelectWithPrefix("t") +
+                     " FROM " + this.getTableTame() + " as t, chat_room_traveler as c " +
+                     " WHERE t.`id` = c.`traveler_id` AND c.`chat_room_id` = ?";
+
+        PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+        p.setInt(1, chatId);
+
+        ResultSet rs = p.executeQuery();
+        while (rs.next()) {
+            result.add(this.convertToBusinessObject(rs));
+        }
+        return result;
+    }
 }

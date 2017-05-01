@@ -14,8 +14,7 @@ public abstract class Repository<T extends ISqlObject> {
         this.fields = fields;
 
         try {
-
-            this.dbConnection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/DB?user=root&password=trvlr");
+            this.dbConnection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/trvlr?user=root&password=trvlr");
         }
         catch (Exception ex) {
             System.out.println(ex.getMessage());
@@ -33,7 +32,21 @@ public abstract class Repository<T extends ISqlObject> {
     }
 
     protected String getFieldsAsStringForSelect() {
-        return "'" + fields[0] + "', " + this.getFieldsAsStringForInsert();
+        return this.getFieldsAsStringForSelectWithPrefix("");
+    }
+    protected String getFieldsAsStringForSelectWithPrefix(String prefix) {
+        if (prefix.length() != 0) {
+            prefix += ".";
+        }
+
+        String fieldsString = "";
+        int i = 0;
+        while (i < this.fields.length - 1){
+            fieldsString += prefix + "`" + fields[i] + "`, ";
+            i++;
+        }
+        // no comma after last field
+        return fieldsString + prefix + "`" + fields[i] + "` ";
     }
 
     protected String getFieldsAsStringForInsert() {
@@ -41,11 +54,11 @@ public abstract class Repository<T extends ISqlObject> {
         // we don't want the ID field for insert
         int i = 1;
         while (i < this.fields.length - 1){
-            fieldsString += "'" + fields[i] + "', ";
+            fieldsString += "`" + fields[i] + "`, ";
             i++;
         }
         // no comma after last field
-        return fieldsString + "'" + fields[i] + "' ";
+        return fieldsString + "`" + fields[i] + "` ";
     }
 
     protected String getValueStringForInsert() {
@@ -61,11 +74,11 @@ public abstract class Repository<T extends ISqlObject> {
         // we don't want the ID field for update
         int i = 1;
         while (i < this.fields.length - 1){
-            fieldsString += "'" + fields[i] + "'=?, ";
+            fieldsString += "`" + fields[i] + "`=?, ";
             i++;
         }
         // no comma after last field
-        return fieldsString + "'" + fields[i] + "'=? ";
+        return fieldsString + "`" + fields[i] + "`=? ";
     }
 
     protected abstract T convertToBusinessObject(ResultSet rs) throws SQLException;
@@ -113,8 +126,8 @@ public abstract class Repository<T extends ISqlObject> {
 
     public T getById(int id) throws SQLException {
         String sql = "SELECT " + this.getFieldsAsStringForSelect() +
-                     "FROM " + this.getTableTame() +
-                     "WHERE " + this.getFields()[0] + "= ?";
+                     " FROM " + this.getTableTame() +
+                     " WHERE " + this.getFields()[0] + " = ?";
 
         PreparedStatement p = this.dbConnection.prepareStatement(sql);
         p.setInt(1, id);

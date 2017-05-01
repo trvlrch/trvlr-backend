@@ -21,9 +21,11 @@ public class ChatRoom implements ISqlObject {
 
 	protected ChatRoom() {}
 
-	protected ChatRoom(int id, Date createdOn) {
+	protected ChatRoom(int id, Date createdOn, ArrayList<Traveler> travelers, ArrayList<Message> messages) {
 	    this.id =  id;
 	    this.createdOn = createdOn;
+	    this.travelers = travelers;
+	    this.messages = messages;
     }
 
     public int getId() {
