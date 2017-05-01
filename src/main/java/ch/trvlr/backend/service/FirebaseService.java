@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.tasks.Task;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -56,14 +57,25 @@ public class FirebaseService extends ApiService {
 	}
 
 	private String getServiceAccountFilePath() {
-		ClassLoader classLoader = getClass().getClassLoader();
-		URL serviceAccount = classLoader.getResource(serviceAccountFilename);
-		if (serviceAccount != null) {
-			System.out.println(serviceAccount.getPath());
-			return serviceAccount.getPath();
-		} else {
-			return "";
+		// try loading path from env var first
+		String path = System.getenv("FIREBASE_SERVICE_ACCOUNT_PATH");
+
+		if (path == null) {
+			// try with class loader if no env var is defined
+			ClassLoader classLoader = getClass().getClassLoader();
+			URL serviceAccount = classLoader.getResource(serviceAccountFilename);
+
+			if (serviceAccount != null) {
+				System.out.println(serviceAccount.getPath());
+				path = serviceAccount.getPath();
+			} else {
+				System.out.println("No Firebase conf");
+				return "";
+			}
 		}
+
+		return path;
+
 	}
 
 	public Traveler getUserByToken(String token) {
