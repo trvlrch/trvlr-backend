@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-	private static ApiService api;
+	private static AuthenticationApiInterface api;
 
 	public UserService() {
 		api = new FirebaseService();

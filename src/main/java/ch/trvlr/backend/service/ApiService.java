@@ -18,8 +18,6 @@ import java.net.URL;
  */
 abstract class ApiService {
 
-	abstract Traveler getUserByToken(String token);
-
 	protected JSONObject post(URL url, String json_body) throws IOException{
 
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();

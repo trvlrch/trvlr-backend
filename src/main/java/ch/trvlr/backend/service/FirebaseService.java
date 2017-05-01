@@ -9,7 +9,6 @@ import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.tasks.Task;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,7 +19,7 @@ import java.net.URL;
  *
  * @author Daniel Milenkovic
  */
-public class FirebaseService extends ApiService {
+public class FirebaseService extends ApiService implements AuthenticationApiInterface {
 
 	private static final String serviceAccountFilename = "serviceAccountKey.json";
 	private static final String databaseUrl = "https://trvlr-312df.firebaseio.com/";
@@ -45,10 +44,6 @@ public class FirebaseService extends ApiService {
 					.setDatabaseUrl(databaseUrl)
 					.build();
 
-			System.out.println("---------");
-			System.out.println(options.toString());
-			System.out.println("---------");
-
 			return FirebaseApp.initializeApp(options);
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
@@ -66,7 +61,6 @@ public class FirebaseService extends ApiService {
 			URL serviceAccount = classLoader.getResource(serviceAccountFilename);
 
 			if (serviceAccount != null) {
-				System.out.println(serviceAccount.getPath());
 				path = serviceAccount.getPath();
 			} else {
 				System.out.println("No Firebase conf");
@@ -102,14 +96,9 @@ public class FirebaseService extends ApiService {
 			URL url = new URL(identityApiUrl + "?key=" + apiKey);
 			String json = "{\"idToken\":\"" + token + "\"}";
 
-			System.out.println(token);
-
 			JSONObject result = this.post(url, json);
 			JSONArray users = result.getJSONArray("users");
-
-			System.out.println("----------------");
-			System.out.println(result.toString());
-
+			
 			if (users.length() > 0) {
 				JSONObject user = (JSONObject) users.get(0);
 				// TODO move to traveler model
