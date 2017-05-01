@@ -47,4 +47,6 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
     public ArrayList<ChatRoom> getAll() {
         return null;
     }
+
+    public ArrayList<ChatRoom> findChatRoomsForConnection(String from, String to) { return null; }
 }
