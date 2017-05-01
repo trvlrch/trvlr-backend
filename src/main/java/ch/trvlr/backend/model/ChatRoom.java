@@ -1,5 +1,7 @@
 package ch.trvlr.backend.model;
 
+import ch.trvlr.backend.repository.ISqlObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -10,18 +12,29 @@ import java.util.List;
  *
  * @author Daniel Milenkovic
  */
-public class ChatRoom {
+public class ChatRoom implements ISqlObject {
 
 	private int id;
 	private Date createdOn;
 	private ArrayList<Message> messages = new ArrayList<>();
 	private ArrayList<Traveler> travelers = new ArrayList<>();
 
-	public int getId() {
+	protected ChatRoom() {}
+
+	protected ChatRoom(int id, Date createdOn) {
+	    this.id =  id;
+	    this.createdOn = createdOn;
+    }
+
+    public int getId() {
 		return this.id;
 	}
 
-	public Date getCreatedOn() {
+    public void setId(int id) {
+       this.id = id;
+    }
+
+    public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
@@ -48,4 +61,5 @@ public class ChatRoom {
 	public void addTraveler(Traveler traveler) {
 		this.travelers.add(traveler);
 	}
+
 }

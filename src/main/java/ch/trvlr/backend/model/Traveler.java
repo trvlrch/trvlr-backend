@@ -1,5 +1,7 @@
 package ch.trvlr.backend.model;
 
+import ch.trvlr.backend.repository.ISqlObject;
+
 import java.security.Principal;
 
 /**
@@ -7,7 +9,7 @@ import java.security.Principal;
  *
  * @author Daniel Milenkovic
  */
-public class Traveler implements Principal {
+public class Traveler implements Principal, ISqlObject {
 
 	private int id;
 	private String firstName;
@@ -19,6 +21,14 @@ public class Traveler implements Principal {
 
 	}
 
+    public Traveler(int id, String firstName, String lastname, String email, String uid) {
+	    this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastname;
+        this.email = email;
+        this.uid = uid;
+    }
+
 	public Traveler(String firstName, String lastname, String email, String uid) {
 		this.firstName = firstName;
 		this.lastName = lastname;
@@ -29,6 +39,10 @@ public class Traveler implements Principal {
 	public int getId() {
 		return this.id;
 	}
+
+	public void setId(int id) {
+	    this.id = id;
+    }
 
 	public String getFirstName() {
 		return this.firstName;
@@ -70,4 +84,5 @@ public class Traveler implements Principal {
 	public String toString() {
 		return getName();
 	}
+
 }

@@ -2,7 +2,9 @@ package ch.trvlr.backend.repository;
 
 import ch.trvlr.backend.model.Traveler;
 
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class TravelerRepository extends Repository<Traveler> {
 
@@ -19,32 +21,22 @@ public class TravelerRepository extends Repository<Traveler> {
     }
 
     @Override
-    protected Traveler getBusinessObject() {
-        return null;
+    protected Traveler convertToBusinessObject(ResultSet rs) throws SQLException {
+        int id = rs.getInt(1);
+        String firstName = rs.getString(2);
+        String lastName = rs.getString(3);
+        String eMail = rs.getString(4);
+        String uid = rs.getString(5);
+
+        return new Traveler(id, firstName, lastName, eMail, uid);
     }
 
     @Override
-    public boolean add(Traveler o) {
-        return false;
+    protected void prepareStatement(PreparedStatement statement, Traveler object) throws SQLException {
+        statement.setString(1, object.getFirstName());
+        statement.setString(2, object.getLastName());
+        statement.setString(3, object.getEmail());
+        statement.setString(4, object.getUid());
     }
 
-    @Override
-    public boolean update(Traveler o) {
-        return false;
-    }
-
-    @Override
-    public boolean save(Traveler o) {
-        return false;
-    }
-
-    @Override
-    public Traveler getById(int id) {
-        return null;
-    }
-
-    @Override
-    public ArrayList<Traveler> getAll() {
-        return null;
-    }
 }

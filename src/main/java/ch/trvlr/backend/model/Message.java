@@ -1,5 +1,7 @@
 package ch.trvlr.backend.model;
 
+import ch.trvlr.backend.repository.ISqlObject;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -8,22 +10,42 @@ import java.util.Date;
  *
  * @author Daniel Milenkovic
  */
-public class Message {
+public class Message implements ISqlObject {
 
 	private int id;
 	private Traveler author;
 	private String text;
 	private Date timestamp;
+	private ChatRoom chatRoom;
+
+	public Message(int id, Traveler author, String text, Date timestamp) {
+		this.id = id;
+		this.author = author;
+		this.text = text;
+		this.timestamp = timestamp;
+	}
 
 	public int getId() {
 		return this.id;
 	}
+
+	public void setId(int id) {
+	    this.id = id;
+    }
 
 	public String getAuthor() {
 		// return only name of the author
 		// otherwise each client will receive all user details
 		return this.author.getName();
 	}
+
+	public int getAuthorId() {
+	    return this.author.getId();
+    }
+
+    public int getChatRoomId() {
+	    return this.chatRoom.getId();
+    }
 
 	public void setAuthor(Traveler author) {
 		this.author = author;
