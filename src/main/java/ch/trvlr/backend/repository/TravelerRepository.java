@@ -40,6 +40,23 @@ public class TravelerRepository extends Repository<Traveler> {
         statement.setString(4, object.getUid());
     }
 
+    public Traveler getByEmail(String email) throws SQLException {
+        String sql = "SELECT " + this.getFieldsAsStringForSelect() +
+                " FROM " + this.getTableTame() +
+                " WHERE email = ?";
+
+        PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+        p.setString(1, email);
+
+        ResultSet rs = p.executeQuery();
+        if (rs.next()) {
+            return convertToBusinessObject(rs);
+        } else {
+            return null;
+        }
+
+    }
+
     public ArrayList<Traveler> getAllTravelersForChat(int chatId) throws SQLException {
         ArrayList<Traveler> result = new ArrayList<>();
         String sql = "SELECT " + this.getFieldsAsStringForSelectWithPrefix("t") +

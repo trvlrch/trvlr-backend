@@ -13,15 +13,27 @@ import org.springframework.stereotype.Controller;
  *
  * @author Daniel Milenkovic
  */
-
 @Controller
 public class ChatController {
 
+	/**
+	 * Receive and send messages via websockets.
+	 * <p>
+	 * Note: public and private chats work the same way. The permission handling is
+	 * done at the SUBSCRIBE event as part of the AuthenticationInterceptor.
+	 *
+	 * @param roomId   String
+	 * @param message  Message
+	 * @param traveler Traveler
+	 * @return Message
+	 * @throws Exception
+	 */
 	@MessageMapping("/chat/{roomId}")
-	public Message handleMessage(@DestinationVariable("roomId") String roomId, @Payload Message message, Traveler author) throws Exception {
+	public Message handleMessages(@DestinationVariable("roomId") String roomId, @Payload Message message, Traveler traveler) throws Exception {
 		System.out.println("Message received for room: " + roomId);
-		System.out.println("User: " + author.toString());
-		message.setAuthor(author);
+		System.out.println("User: " + traveler.toString());
+		message.setAuthor(traveler);
 		return message;
 	}
+
 }
