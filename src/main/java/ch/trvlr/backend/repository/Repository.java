@@ -22,7 +22,7 @@ public abstract class Repository<T extends ISqlObject> {
 		connectionString += (password != null) ? "&password=" + password : "";
 
 		try {
-			this.dbConnection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/" + connectionString);
+			this.dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + connectionString);
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}

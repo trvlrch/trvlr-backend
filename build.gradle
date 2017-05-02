@@ -39,15 +39,13 @@ dependencies {
 			"com.google.firebase:firebase-admin:4.1.7",
 			"org.json:json",
 
+			group: 'mysql', name: 'mysql-connector-java', version: '5.1.6',
+
 			"org.webjars:webjars-locator",
 			"org.webjars:sockjs-client:1.0.2",
 			"org.webjars:stomp-websocket:2.3.3",
 			"org.webjars:bootstrap:3.3.7",
-			"org.webjars:jquery:3.1.0",
-
-			'net.java.dev.jna:jna:4.4.0',
-			'net.java.dev.jna:jna-platform:4.4.0'
-			'org.mariadb.jdbc:mariadb-java-client:1.1.7'
+			"org.webjars:jquery:3.1.0"
 
     testCompile "org.springframework.boot:spring-boot-starter-test"
 }
