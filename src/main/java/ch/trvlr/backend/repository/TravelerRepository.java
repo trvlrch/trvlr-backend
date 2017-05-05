@@ -12,7 +12,7 @@ public class TravelerRepository extends Repository<Traveler> {
     private static TravelerRepository instance = new TravelerRepository();
 
     protected TravelerRepository() {
-        super("Traveler", new String[] {
+        super("traveler", new String[] {
                     "id", "firstname", "lastname", "email", "auth_token"
                 });
     }
