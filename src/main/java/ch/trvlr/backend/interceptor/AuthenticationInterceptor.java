@@ -129,7 +129,7 @@ public class AuthenticationInterceptor extends ChannelInterceptorAdapter {
 					return false;
 				}
 			}
-			
+
 			return true;
 		} else {
 			return false;
