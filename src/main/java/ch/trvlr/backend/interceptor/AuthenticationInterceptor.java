@@ -5,7 +5,6 @@ import ch.trvlr.backend.model.PrivateChat;
 import ch.trvlr.backend.model.PublicChat;
 import ch.trvlr.backend.model.Traveler;
 import ch.trvlr.backend.repository.ChatRoomRepository;
-import ch.trvlr.backend.repository.TravelerRepository;
 import ch.trvlr.backend.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.messaging.Message;
@@ -18,7 +17,6 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 
 import java.security.Principal;
-import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -111,34 +109,31 @@ public class AuthenticationInterceptor extends ChannelInterceptorAdapter {
 	private Boolean validateChatRoomAccess(Traveler user, String destination) {
 		int roomId = parseRoomId(".*/chat/(\\d+)", destination);
 		ChatRoomRepository repository = ChatRoomRepository.getInstance();
-		// TODO refactor
 		if (roomId > 0) {
-			try {
-				// check if room exists
-				ChatRoom room = repository.getById(roomId);
-				if (room == null) {
-					return false;
-				}
-
-				// if public room add user
-				if (room instanceof PublicChat) {
-					room.addTraveler(user);
-					repository.save(room);
-				}
-
-				// if private room check user permissions
-				if (room instanceof PrivateChat) {
-					Traveler traveler = room.getTraveler(user.getId());
-					if (traveler == null) {
-						return false;
-					}
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
+			// check if room exists
+			ChatRoom room = repository.getById(roomId);
+			if (room == null) {
 				return false;
 			}
+
+			// if public room add user
+			if (room instanceof PublicChat) {
+				room.addTraveler(user);
+				repository.save(room);
+			}
+
+			// if private room check user permissions
+			if (room instanceof PrivateChat) {
+				Traveler traveler = room.getTraveler(user.getId());
+				if (traveler == null) {
+					return false;
+				}
+			}
+			
+			return true;
+		} else {
+			return false;
 		}
-		return true;
 	}
 
 	private int parseRoomId(String pattern, String target) {

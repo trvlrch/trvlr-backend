@@ -40,36 +40,38 @@ public class TravelerRepository extends Repository<Traveler> {
         statement.setString(4, object.getUid());
     }
 
-    public Traveler getByEmail(String email) throws SQLException {
+    public Traveler getByEmail(String email) {
         String sql = "SELECT " + this.getFieldsAsStringForSelect() +
                 " FROM " + this.getTableTame() +
                 " WHERE email = ?";
 
-        PreparedStatement p = this.getDbConnection().prepareStatement(sql);
-        p.setString(1, email);
+        PreparedStatement p = this.prepareStatement(sql);
 
-        ResultSet rs = p.executeQuery();
-        if (rs.next()) {
-            return convertToBusinessObject(rs);
-        } else {
-            return null;
+        try {
+            p.setString(1, email);
+            return getSingle(p);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
+        return null;
     }
 
-    public ArrayList<Traveler> getAllTravelersForChat(int chatId) throws SQLException {
+    public ArrayList<Traveler> getAllTravelersForChat(int chatId) {
         ArrayList<Traveler> result = new ArrayList<>();
         String sql = "SELECT " + this.getFieldsAsStringForSelectWithPrefix("t") +
                      " FROM " + this.getTableTame() + " as t, chat_room_traveler as c " +
                      " WHERE t.`id` = c.`traveler_id` AND c.`chat_room_id` = ?";
 
-        PreparedStatement p = this.getDbConnection().prepareStatement(sql);
-        p.setInt(1, chatId);
+        PreparedStatement p = this.prepareStatement(sql);
 
-        ResultSet rs = p.executeQuery();
-        while (rs.next()) {
-            result.add(this.convertToBusinessObject(rs));
+        try {
+            p.setInt(1, chatId);
+            return getList(p);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return result;
+
+        return null;
     }
 }

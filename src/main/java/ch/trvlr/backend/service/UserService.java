@@ -5,8 +5,6 @@ import ch.trvlr.backend.model.Traveler;
 import ch.trvlr.backend.repository.TravelerRepository;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
-
 
 /**
  * @author Rob Winch
@@ -21,7 +19,7 @@ public class UserService {
 	}
 
 	public Traveler getUserByToken(String token) {
-		Traveler user =  api.getUserByToken(token);
+		Traveler user = api.getUserByToken(token);
 		if (user != null) {
 			user = syncUserWithDB(user);
 		}
@@ -30,17 +28,13 @@ public class UserService {
 
 	private Traveler syncUserWithDB(Traveler user) {
 		TravelerRepository repository = TravelerRepository.getInstance();
-		try {
-			Traveler existing = repository.getByEmail(user.getEmail());
-			// override existing user
-			if (existing != null) {
-				user.setId(existing.getId());
-			}
-			if (TravelerRepository.getInstance().save(user)){
-				return user;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		Traveler existing = repository.getByEmail(user.getEmail());
+		// override existing user
+		if (existing != null) {
+			user.setId(existing.getId());
+		}
+		if (TravelerRepository.getInstance().save(user)) {
+			return user;
 		}
 		return null;
 	}

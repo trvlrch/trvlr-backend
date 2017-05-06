@@ -95,73 +95,118 @@ public abstract class Repository<T extends ISqlObject> {
 
 	protected abstract void prepareStatement(PreparedStatement statement, T object) throws SQLException;
 
-	public boolean add(T o) throws SQLException {
+	public boolean add(T o) {
 		String sql = "INSERT INTO " + this.getTableTame() +
 				" (" + this.getFieldsAsStringForInsert() + ") " +
 				"VALUES(" + this.getValueStringForInsert() + ")";
 
-		PreparedStatement st = this.getDbConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-		System.out.println(sql);
-		this.prepareStatement(st, o);
-		// st.setInt(this.fields.length, o.getId());
+		try {
+			PreparedStatement st = this.getDbConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			System.out.println(sql);
+			this.prepareStatement(st, o);
+			// st.setInt(this.fields.length, o.getId());
 
-		st.executeUpdate();
-		if (st.getGeneratedKeys().next()) {
-			System.out.println(st.getGeneratedKeys());
-			return true;
-		} else {
-			return false;
+			st.executeUpdate();
+			if (st.getGeneratedKeys().next()) {
+				System.out.println(st.getGeneratedKeys());
+				return true;
+			}
+		} catch (NullPointerException | SQLException e) {
+			e.printStackTrace();
 		}
+
+		return false;
 	}
 
 
-	public boolean update(T o) throws SQLException {
+	public boolean update(T o) {
 		String sql = "UPDATE " + this.getTableTame() +
 				" SET " + this.getFieldsAsStringForUpdate() +
 				" WHERE " + this.getFields()[0] + " = ?";
 
-		PreparedStatement st = this.getDbConnection().prepareStatement(sql);
-		this.prepareStatement(st, o);
-		st.setInt(this.fields.length, o.getId());
-		st.executeUpdate();
+		try {
 
-		return true;
+			PreparedStatement st = this.getDbConnection().prepareStatement(sql);
+			this.prepareStatement(st, o);
+			st.setInt(this.fields.length, o.getId());
+			st.executeUpdate();
+
+			return true;
+
+		} catch (NullPointerException | SQLException e) {
+			e.printStackTrace();
+		}
+
+		return false;
 	}
 
-	public boolean save(T o) throws SQLException {
+	public boolean save(T o) {
 		if (o.getId() < 1)
 			return this.add(o);
 		else
 			return this.update(o);
 	}
 
-	public T getById(int id) throws SQLException {
+	public T getById(int id) {
 		String sql = "SELECT " + this.getFieldsAsStringForSelect() +
 				" FROM " + this.getTableTame() +
 				" WHERE " + this.getFields()[0] + " = ?";
 
-		PreparedStatement p = this.dbConnection.prepareStatement(sql);
-		p.setInt(1, id);
+		PreparedStatement p = prepareStatement(sql);
 
-		ResultSet rs = p.executeQuery();
-		if (rs.next()) {
-			return convertToBusinessObject(rs);
-		} else {
-			return null;
+		try {
+			p.setInt(1, id);
+			return getSingle(p);
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
+
+		return null;
 	}
 
-	public ArrayList<T> getAll() throws SQLException {
+	public ArrayList<T> getAll() {
 		ArrayList<T> result = new ArrayList<>();
 		String sql = "SELECT " + this.getFieldsAsStringForSelect() +
 				" FROM " + this.getTableTame();
 
-		PreparedStatement p = this.dbConnection.prepareStatement(sql);
+		PreparedStatement p = prepareStatement(sql);
+		return getList(p);
+	}
 
-		ResultSet rs = p.executeQuery();
-		while (rs.next()) {
-			result.add(this.convertToBusinessObject(rs));
+	protected T getSingle(PreparedStatement p) {
+		try {
+			ResultSet rs = p.executeQuery();
+			if (rs.next()) {
+				return convertToBusinessObject(rs);
+			}
+		} catch (NullPointerException | SQLException e) {
+			e.printStackTrace();
 		}
-		return result;
+		return null;
+	}
+
+	protected ArrayList<T> getList(PreparedStatement p) {
+		ArrayList<T> result = new ArrayList<>();
+
+		try {
+			ResultSet rs = p.executeQuery();
+			while (rs.next()) {
+				result.add(this.convertToBusinessObject(rs));
+			}
+			return result;
+		} catch (NullPointerException | SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+	protected PreparedStatement prepareStatement(String sql) {
+		try {
+			return this.dbConnection.prepareStatement(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

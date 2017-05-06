@@ -60,22 +60,24 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 
     }
 
-    public ArrayList<ChatRoom> findChatRoomsForConnection(String from, String to) throws SQLException {
+    public ArrayList<ChatRoom> findChatRoomsForConnection(String from, String to) {
         ArrayList<ChatRoom> result = new ArrayList<>();
         String sql = "SELECT " + this.getFieldsAsStringForSelectWithPrefix("c") +
                      " FROM " + this.getTableTame() + " as c, station as s " +
                      " WHERE  c.`from` = s.`id` AND s.`name` = ?" +
                      " AND c.`to` IN (SELECT `id` FROM station WHERE `name` = ?)";
 
-        PreparedStatement p = this.getDbConnection().prepareStatement(sql);
-        p.setString(1, from);
-        p.setString(2, to);
+        PreparedStatement p = this.prepareStatement(sql);
 
-        ResultSet rs = p.executeQuery();
-        while (rs.next()) {
-            result.add(this.convertToBusinessObject(rs));
+        try {
+            p.setString(1, from);
+            p.setString(2, to);
+            return getList(p);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return result;
+
+        return null;
     }
 
 
