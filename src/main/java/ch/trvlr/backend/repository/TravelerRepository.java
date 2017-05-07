@@ -1,5 +1,6 @@
 package ch.trvlr.backend.repository;
 
+import ch.trvlr.backend.model.ChatRoom;
 import ch.trvlr.backend.model.Traveler;
 
 import java.sql.PreparedStatement;
@@ -41,13 +42,10 @@ public class TravelerRepository extends Repository<Traveler> {
     }
 
     public Traveler getByEmail(String email) {
-        String sql = "SELECT " + this.getFieldsAsStringForSelect() +
-                " FROM " + this.getTableTame() +
-                " WHERE email = ?";
-
-        PreparedStatement p = this.prepareStatement(sql);
+        String sql = this.getQueryBuilder().generateSelectQuery(new String[] {"email"});
 
         try {
+        	PreparedStatement p = this.getDbConnection().prepareStatement(sql);
             p.setString(1, email);
             return getSingle(p);
         } catch (SQLException e) {
@@ -58,14 +56,12 @@ public class TravelerRepository extends Repository<Traveler> {
     }
 
     public ArrayList<Traveler> getAllTravelersForChat(int chatId) {
-        ArrayList<Traveler> result = new ArrayList<>();
-        String sql = "SELECT " + this.getFieldsAsStringForSelectWithPrefix("t") +
-                     " FROM " + this.getTableTame() + " as t, chat_room_traveler as c " +
+        String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("t") +
+                     " FROM " + this.getTableName() + " as t, chat_room_traveler as c " +
                      " WHERE t.`id` = c.`traveler_id` AND c.`chat_room_id` = ?";
 
-        PreparedStatement p = this.prepareStatement(sql);
-
         try {
+			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
             p.setInt(1, chatId);
             return getList(p);
         } catch (SQLException e) {

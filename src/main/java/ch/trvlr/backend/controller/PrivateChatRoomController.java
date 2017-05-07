@@ -28,7 +28,7 @@ public class PrivateChatRoomController {
 		Traveler t1 = TravelerRepository.getInstance().getById(travelerId1);
 		Traveler t2 = TravelerRepository.getInstance().getById(travelerId2);
 		PrivateChat room = new PrivateChat(t1, t2);
-		if (repository.save(room)) {
+		if (repository.save(room) > 0) {
 			return room;
 		}
 		return null;

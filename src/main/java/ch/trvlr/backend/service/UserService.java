@@ -33,7 +33,7 @@ public class UserService {
 		if (existing != null) {
 			user.setId(existing.getId());
 		}
-		if (TravelerRepository.getInstance().save(user)) {
+		if (TravelerRepository.getInstance().save(user) > 0) {
 			return user;
 		}
 		return null;

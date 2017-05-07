@@ -2,12 +2,10 @@ package ch.trvlr.backend.repository;
 
 import ch.trvlr.backend.model.*;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ChatRoomRepository extends Repository<ChatRoom> {
 
@@ -26,14 +24,16 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
     @Override
     protected ChatRoom convertToBusinessObject(ResultSet rs) throws SQLException {
         int id = rs.getInt(1);
-        String from = rs.getString(2);
-        String to = rs.getString(3);
+        int fromId = rs.getInt(2);
+        int toId = rs.getInt(3);
         Date createdOn = rs.getDate(4);
 
         // TODO find a better to get different chat types
 
         ArrayList<Message> messages = MessageRepository.getInstance().getAllMessagesForChat(id);
         ArrayList<Traveler> travelers = TravelerRepository.getInstance().getAllTravelersForChat(id);
+        Station from = StationRepository.getInstance().getById(fromId);
+        Station to = StationRepository.getInstance().getById(toId);
 
         if (from == null || to == null)
             return new PrivateChat(id, createdOn, travelers, messages);
@@ -51,25 +51,93 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
             statement.setDate(2, (java.sql.Date) object.getCreatedOn());
         } else if (object instanceof PublicChat) {
             PublicChat c = (PublicChat)object;
-            statement.setString(1, c.getFrom());
-            statement.setString(2, c.getTo());
+            statement.setInt(1, c.getFrom().getId());
+            statement.setInt(2, c.getTo().getId());
             statement.setDate(3, (java.sql.Date) object.getCreatedOn());
         } else {
             throw new IllegalArgumentException();
+        }
+    }
+
+    public int add(ChatRoom o) {
+        // save station 1:n relations and update model ids
+        o = save_station_relations(o);
+
+        // save chatRoom before we persist mm relations
+        int roomId = super.add(o);
+        o.setId(roomId);
+
+        save_traveler_relations(o);
+
+        return roomId;
+    }
+
+    public int update(ChatRoom o) {
+
+        // lazy way to update mm relations
+        delete_traveler_relations(o);
+        save_traveler_relations(o);
+
+        return super.update(o);
+    }
+
+    private ChatRoom save_station_relations(ChatRoom o) {
+        if (o instanceof PublicChat) {
+            int fromId = StationRepository.getInstance().save(((PublicChat) o).getFrom());
+            int toId = StationRepository.getInstance().save(((PublicChat) o).getTo());
+
+            Station from = ((PublicChat) o).getFrom();
+            Station to = ((PublicChat) o).getTo();
+            from.setId(fromId);
+            to.setId(toId);
+
+            ((PublicChat) o).setFrom(from);
+            ((PublicChat) o).setTo(to);
+        }
+        return o;
+    }
+
+    private void save_traveler_relations(ChatRoom o) {
+        List<Traveler> travelers = o.getAllTravelers();
+        if (travelers != null) {
+            String[] fields = new String[] {"chat_room_id", "traveler_id"};
+            String sql = this.getQueryBuilder().generateInsertQuery("chat_room_traveler", fields);
+            for (Traveler traveler : travelers) {
+
+                try {
+                    PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+                    p.setInt(1, o.getId());
+                    p.setInt(2, traveler.getId());
+                    p.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+
+    private void delete_traveler_relations(ChatRoom o) {
+        String[] fields = new String[] {"chat_room_id"};
+        String sql = this.getQueryBuilder().generateDeleteQuery("chat_room_traveler", fields);
+        try {
+            PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+            p.setInt(1, o.getId());
+            p.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
     }
 
     public ArrayList<ChatRoom> findChatRoomsForConnection(String from, String to) {
-        ArrayList<ChatRoom> result = new ArrayList<>();
-        String sql = "SELECT " + this.getFieldsAsStringForSelectWithPrefix("c") +
-                     " FROM " + this.getTableTame() + " as c, station as s " +
+        String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("c") +
+                     " FROM " + this.getTableName() + " as c, station as s " +
                      " WHERE  c.`from` = s.`id` AND s.`name` = ?" +
                      " AND c.`to` IN (SELECT `id` FROM station WHERE `name` = ?)";
 
-        PreparedStatement p = this.prepareStatement(sql);
-
         try {
+            PreparedStatement p = this.getDbConnection().prepareStatement(sql);
             p.setString(1, from);
             p.setString(2, to);
             return getList(p);
@@ -79,6 +147,24 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 
         return null;
     }
+
+    public ArrayList<ChatRoom> getByTravelerId(int travelerId) {
+        String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("t") +
+                " FROM " + this.getTableName() + " as t " +
+                " JOIN chat_room_traveler as c ON t.`id` = c.`chat_room_id` AND c.`traveler_id` = ?";
+
+        try {
+            PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+            p.setInt(1, travelerId);
+            return getList(p);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
 
 
 }

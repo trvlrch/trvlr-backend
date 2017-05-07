@@ -10,27 +10,35 @@ import java.util.List;
  */
 public class PublicChat extends ChatRoom {
 
-    private String from;
-    private String to;
+    private Station from;
+    private Station to;
 
-    public PublicChat(int id, String from, String to, Date createdOn, ArrayList<Traveler> travelers, ArrayList<Message> messages) {
+    public PublicChat(int id, Station from, Station to, Date createdOn, ArrayList<Traveler> travelers, ArrayList<Message> messages) {
         super(id, createdOn, travelers, messages);
         this.from = from;
         this.to = to;
     }
 
-    public PublicChat(String from, String to) {
+    public PublicChat(Station from, Station to) {
         super(0, new Date(), new ArrayList<>(), new ArrayList<>());
         this.from = from;
         this.to = to;
     }
 
-    public String getFrom() {
+    public Station getFrom() {
         return this.from;
     }
 
-    public String getTo() {
+    public Station getTo() {
         return this.to;
+    }
+
+    public void setFrom(Station from) {
+        this.from = from;
+    }
+
+    public void setTo(Station to) {
+        this.to = to;
     }
 
 }

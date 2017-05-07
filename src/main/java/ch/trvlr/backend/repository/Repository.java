@@ -9,9 +9,12 @@ public abstract class Repository<T extends ISqlObject> {
 	private String[] fields;
 	private Connection dbConnection;
 
+	private QueryBuilder queryBuilder;
+
 	protected Repository(String tableName, String[] fields) {
 		this.tableName = tableName;
 		this.fields = fields;
+		this.queryBuilder = new QueryBuilder(tableName, fields);
 
 		// TODO refactor
 		String dbname = System.getenv("DB_NAME");
@@ -28,101 +31,33 @@ public abstract class Repository<T extends ISqlObject> {
 		}
 	}
 
-	protected Connection getDbConnection() {
-		return this.dbConnection;
-	}
-
-	protected String getTableTame() {
-		return this.tableName;
-	}
-
-	protected String[] getFields() {
-		return this.fields;
-	}
-
-	protected String getFieldsAsStringForSelect() {
-		return this.getFieldsAsStringForSelectWithPrefix("");
-	}
-
-	protected String getFieldsAsStringForSelectWithPrefix(String prefix) {
-		if (prefix.length() != 0) {
-			prefix += ".";
-		}
-
-		String fieldsString = "";
-		int i = 0;
-		while (i < this.fields.length - 1) {
-			fieldsString += prefix + "`" + fields[i] + "`, ";
-			i++;
-		}
-		// no comma after last field
-		return fieldsString + prefix + "`" + fields[i] + "` ";
-	}
-
-	protected String getFieldsAsStringForInsert() {
-		String fieldsString = "";
-		// we don't want the ID field for insert
-		int i = 1;
-		while (i < this.fields.length - 1) {
-			fieldsString += "`" + fields[i] + "`, ";
-			i++;
-		}
-		// no comma after last field
-		return fieldsString + "`" + fields[i] + "` ";
-	}
-
-	protected String getValueStringForInsert() {
-		String valueString = "?";
-		for (int i = 1; i < this.fields.length - 1; i++) {
-			valueString += ", ?";
-		}
-		return valueString;
-	}
-
-	protected String getFieldsAsStringForUpdate() {
-		String fieldsString = "";
-		// we don't want the ID field for update
-		int i = 1;
-		while (i < this.fields.length - 1) {
-			fieldsString += "`" + fields[i] + "`=?, ";
-			i++;
-		}
-		// no comma after last field
-		return fieldsString + "`" + fields[i] + "`=? ";
-	}
-
 	protected abstract T convertToBusinessObject(ResultSet rs) throws SQLException;
 
 	protected abstract void prepareStatement(PreparedStatement statement, T object) throws SQLException;
 
-	public boolean add(T o) {
-		String sql = "INSERT INTO " + this.getTableTame() +
-				" (" + this.getFieldsAsStringForInsert() + ") " +
-				"VALUES(" + this.getValueStringForInsert() + ")";
+	public int add(T o) {
+		String sql = this.queryBuilder.generateInsertQuery();
 
 		try {
 			PreparedStatement st = this.getDbConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			System.out.println(sql);
 			this.prepareStatement(st, o);
-			// st.setInt(this.fields.length, o.getId());
 
 			st.executeUpdate();
-			if (st.getGeneratedKeys().next()) {
-				System.out.println(st.getGeneratedKeys());
-				return true;
+
+			ResultSet keys = st.getGeneratedKeys();
+			if (keys.next()) {
+				return keys.getInt(1);
 			}
 		} catch (NullPointerException | SQLException e) {
 			e.printStackTrace();
 		}
 
-		return false;
+		return 0;
 	}
 
-
-	public boolean update(T o) {
-		String sql = "UPDATE " + this.getTableTame() +
-				" SET " + this.getFieldsAsStringForUpdate() +
-				" WHERE " + this.getFields()[0] + " = ?";
+	public int update(T o) {
+		String sql = this.queryBuilder.generateUpdateQuery();
 
 		try {
 
@@ -131,16 +66,16 @@ public abstract class Repository<T extends ISqlObject> {
 			st.setInt(this.fields.length, o.getId());
 			st.executeUpdate();
 
-			return true;
+			return o.getId();
 
 		} catch (NullPointerException | SQLException e) {
 			e.printStackTrace();
 		}
 
-		return false;
+		return 0;
 	}
 
-	public boolean save(T o) {
+	public int save(T o) {
 		if (o.getId() < 1)
 			return this.add(o);
 		else
@@ -148,13 +83,11 @@ public abstract class Repository<T extends ISqlObject> {
 	}
 
 	public T getById(int id) {
-		String sql = "SELECT " + this.getFieldsAsStringForSelect() +
-				" FROM " + this.getTableTame() +
-				" WHERE " + this.getFields()[0] + " = ?";
+		String sql = this.queryBuilder.generateSelectQuery(new String[] {"id"});
 
-		PreparedStatement p = prepareStatement(sql);
 
 		try {
+			PreparedStatement p = this.dbConnection.prepareStatement(sql);
 			p.setInt(1, id);
 			return getSingle(p);
 		} catch (SQLException e) {
@@ -165,12 +98,16 @@ public abstract class Repository<T extends ISqlObject> {
 	}
 
 	public ArrayList<T> getAll() {
-		ArrayList<T> result = new ArrayList<>();
-		String sql = "SELECT " + this.getFieldsAsStringForSelect() +
-				" FROM " + this.getTableTame();
+		String sql = this.queryBuilder.generateSelectQuery();
 
-		PreparedStatement p = prepareStatement(sql);
-		return getList(p);
+		try {
+			PreparedStatement p =  this.dbConnection.prepareStatement(sql);
+			return getList(p);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	protected T getSingle(PreparedStatement p) {
@@ -200,13 +137,20 @@ public abstract class Repository<T extends ISqlObject> {
 		return null;
 	}
 
-
-	protected PreparedStatement prepareStatement(String sql) {
-		try {
-			return this.dbConnection.prepareStatement(sql);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
+	protected Connection getDbConnection() {
+		return this.dbConnection;
 	}
+
+	protected String getTableName() {
+		return this.tableName;
+	}
+
+	protected String[] getFields() {
+		return this.fields;
+	}
+
+	protected QueryBuilder getQueryBuilder() {
+		return queryBuilder;
+	}
+
 }

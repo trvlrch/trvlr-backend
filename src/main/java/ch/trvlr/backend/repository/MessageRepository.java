@@ -38,15 +38,13 @@ public class MessageRepository extends Repository<Message> {
     protected void prepareStatement(PreparedStatement statement, Message object) throws SQLException {
         statement.setInt(1,object.getAuthorId());
         statement.setString(2, object.getText());
-        statement.setDate(3, (java.sql.Date) object.getTimestamp());
+        statement.setTimestamp(3, new java.sql.Timestamp(object.getTimestamp().getTime()));
         statement.setInt(4, object.getChatRoomId());
     }
 
     public ArrayList<Message> getAllMessagesForChat(int chatId) throws SQLException {
         ArrayList<Message> result = new ArrayList<>();
-        String sql = "SELECT " + this.getFieldsAsStringForSelect() +
-                     " FROM " + this.getTableTame() +
-                     " WHERE 'chat_room_id' = ?";
+        String sql = this.getQueryBuilder().generateSelectQuery(new String[]{"chat_room_id"});
 
         PreparedStatement p = this.getDbConnection().prepareStatement(sql);
         p.setInt(1, chatId);

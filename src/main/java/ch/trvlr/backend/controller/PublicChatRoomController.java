@@ -2,6 +2,7 @@ package ch.trvlr.backend.controller;
 
 import ch.trvlr.backend.model.ChatRoom;
 import ch.trvlr.backend.model.PublicChat;
+import ch.trvlr.backend.model.Station;
 import ch.trvlr.backend.model.Traveler;
 import ch.trvlr.backend.repository.ChatRoomRepository;
 import ch.trvlr.backend.repository.TravelerRepository;
@@ -32,10 +33,10 @@ public class PublicChatRoomController {
 	@RequestMapping(path = "/api/public-chats", method = RequestMethod.POST)
 	public ChatRoom createPublicChat(@RequestBody String from, @RequestBody String to) {
 		// TODO from/to validation
-		ChatRoom room = new PublicChat(from, to);
-			if (repository.save(room)) {
-				return room;
-			}
+		ChatRoom room = new PublicChat(new Station(from), new Station(to));
+		if (repository.save(room) > 0) {
+			return room;
+		}
 		return null;
 	}
 
@@ -51,13 +52,7 @@ public class PublicChatRoomController {
 
 	@RequestMapping("/api/public-chats/list/{travelerId}")
 	public List<ChatRoom> getPublicChatsByTraveler(@PathVariable int travelerId) {
-		// TODO implement
-		/*try {
-			return repository.g(roomId);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}*/
-		return getAllPublicChats();
+		return repository.getByTravelerId(travelerId);
 	}
 
 	@RequestMapping("/api/public-chats/{roomId}/travelers")

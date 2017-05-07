@@ -19,7 +19,7 @@ public class Message implements ISqlObject {
 	private int chatRoomId; // no need to reference the whole chat room object
 
 	public Message() {
-
+		this.timestamp = new Date();
 	}
 
 	public Message(int id, Traveler author, String text, Date timestamp) {
@@ -50,6 +50,10 @@ public class Message implements ISqlObject {
     public int getChatRoomId() {
 	    return this.chatRoomId;
     }
+
+	public void setChatRoomId(int chatRoomId) {
+		this.chatRoomId = chatRoomId;
+	}
 
 	public void setAuthor(Traveler author) {
 		this.author = author;

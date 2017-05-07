@@ -2,6 +2,7 @@ package ch.trvlr.backend.controller;
 
 import ch.trvlr.backend.model.Message;
 import ch.trvlr.backend.model.Traveler;
+import ch.trvlr.backend.repository.MessageRepository;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -32,7 +33,12 @@ public class ChatController {
 	public Message handleMessages(@DestinationVariable("roomId") String roomId, @Payload Message message, Traveler traveler) throws Exception {
 		System.out.println("Message received for room: " + roomId);
 		System.out.println("User: " + traveler.toString());
+
+		// store message in database
 		message.setAuthor(traveler);
+		message.setChatRoomId(Integer.parseInt(roomId));
+		MessageRepository.getInstance().save(message);
+
 		return message;
 	}
 
