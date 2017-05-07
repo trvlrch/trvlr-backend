@@ -40,8 +40,9 @@ public abstract class Repository<T extends ISqlObject> {
 
 		try {
 			PreparedStatement st = this.getDbConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			System.out.println(sql);
 			this.prepareStatement(st, o);
+
+			System.out.println(st.toString());
 
 			st.executeUpdate();
 

@@ -33,4 +33,17 @@ public class StationRepository extends Repository<Station> {
 		statement.setString(1, object.getName());
 	}
 
+	public Station getByName(String name) {
+		String sql = this.getQueryBuilder().generateSelectQuery(new String[] {"name"});
+
+		try {
+			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			p.setString(1, name);
+			return getSingle(p);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
 }

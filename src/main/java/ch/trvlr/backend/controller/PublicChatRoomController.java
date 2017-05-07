@@ -5,10 +5,13 @@ import ch.trvlr.backend.model.PublicChat;
 import ch.trvlr.backend.model.Station;
 import ch.trvlr.backend.model.Traveler;
 import ch.trvlr.backend.repository.ChatRoomRepository;
+import ch.trvlr.backend.repository.StationRepository;
 import ch.trvlr.backend.repository.TravelerRepository;
+import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,14 +33,20 @@ public class PublicChatRoomController {
 		return repository.getAll();
 	}
 
-	@RequestMapping(path = "/api/public-chats", method = RequestMethod.POST)
-	public ChatRoom createPublicChat(@RequestBody String from, @RequestBody String to) {
-		// TODO from/to validation
-		ChatRoom room = new PublicChat(new Station(from), new Station(to));
-		if (repository.save(room) > 0) {
-			return room;
+	@RequestMapping(path = "/api/public-chats", method = RequestMethod.POST, consumes="application/json")
+	public ChatRoom createPublicChat(@RequestBody String postPayload) {
+		JSONObject json = new JSONObject(postPayload);
+		String from = json.getString("from");
+		String to = json.getString("to");
+
+		ArrayList<ChatRoom> rooms = repository.findChatRoomsForConnection(from, to);
+		if (rooms.size() > 0) {
+			return rooms.get(0);
+		} else {
+			PublicChat chatRoom = new PublicChat(from, to);
+			repository.save(chatRoom);
+			return chatRoom;
 		}
-		return null;
 	}
 
 	@RequestMapping("/api/public-chats/search")

@@ -48,12 +48,12 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
             PrivateChat c = (PrivateChat)object;
             statement.setNull(1, Types.VARCHAR);
             statement.setNull(2, Types.VARCHAR);
-            statement.setDate(2, (java.sql.Date) object.getCreatedOn());
+            statement.setTimestamp(2, new java.sql.Timestamp(object.getCreatedOn().getTime()));
         } else if (object instanceof PublicChat) {
             PublicChat c = (PublicChat)object;
             statement.setInt(1, c.getFrom().getId());
             statement.setInt(2, c.getTo().getId());
-            statement.setDate(3, (java.sql.Date) object.getCreatedOn());
+            statement.setTimestamp(3, new java.sql.Timestamp(object.getCreatedOn().getTime()));
         } else {
             throw new IllegalArgumentException();
         }
@@ -83,11 +83,12 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 
     private ChatRoom save_station_relations(ChatRoom o) {
         if (o instanceof PublicChat) {
-            int fromId = StationRepository.getInstance().save(((PublicChat) o).getFrom());
-            int toId = StationRepository.getInstance().save(((PublicChat) o).getTo());
-
             Station from = ((PublicChat) o).getFrom();
             Station to = ((PublicChat) o).getTo();
+
+            int fromId = StationRepository.getInstance().save(from);
+            int toId = StationRepository.getInstance().save(to);
+
             from.setId(fromId);
             to.setId(toId);
 
@@ -163,8 +164,4 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 
         return null;
     }
-
-
-
-
 }
