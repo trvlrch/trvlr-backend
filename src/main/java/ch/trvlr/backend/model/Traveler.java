@@ -85,4 +85,12 @@ public class Traveler implements Principal, ISqlObject {
 		return getName();
 	}
 
+	@Override public boolean equals(Object t) {
+		if (t instanceof Traveler) {
+			// id is unique
+			return this.getId() == ((Traveler) t).getId();
+		}
+		return false;
+	}
+
 }

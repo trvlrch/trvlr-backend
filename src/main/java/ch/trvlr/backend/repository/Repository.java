@@ -42,8 +42,6 @@ public abstract class Repository<T extends ISqlObject> {
 			PreparedStatement st = this.getDbConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			this.prepareStatement(st, o);
 
-			System.out.println(st.toString());
-
 			st.executeUpdate();
 
 			ResultSet keys = st.getGeneratedKeys();

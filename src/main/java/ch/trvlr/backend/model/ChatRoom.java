@@ -19,24 +19,25 @@ public class ChatRoom implements ISqlObject {
 	private ArrayList<Message> messages = new ArrayList<>();
 	private ArrayList<Traveler> travelers = new ArrayList<>();
 
-	protected ChatRoom() {}
+	protected ChatRoom() {
+	}
 
 	protected ChatRoom(int id, Date createdOn, ArrayList<Traveler> travelers, ArrayList<Message> messages) {
-	    this.id =  id;
-	    this.createdOn = createdOn;
-	    this.travelers = travelers;
-	    this.messages = messages;
-    }
+		this.id = id;
+		this.createdOn = createdOn;
+		this.travelers = travelers;
+		this.messages = messages;
+	}
 
-    public int getId() {
+	public int getId() {
 		return this.id;
 	}
 
-    public void setId(int id) {
-       this.id = id;
-    }
+	public void setId(int id) {
+		this.id = id;
+	}
 
-    public Date getCreatedOn() {
+	public Date getCreatedOn() {
 		return this.createdOn;
 	}
 
@@ -61,7 +62,13 @@ public class ChatRoom implements ISqlObject {
 	}
 
 	public void addTraveler(Traveler traveler) {
-		this.travelers.add(traveler);
+		if (!this.travelers.contains(traveler)) {
+			this.travelers.add(traveler);
+		}
+	}
+
+	public void removeTraveler(Traveler traveler) {
+		this.travelers.removeIf(current -> current.getId() == traveler.getId());
 	}
 
 }

@@ -2,15 +2,13 @@ package ch.trvlr.backend.controller;
 
 import ch.trvlr.backend.model.ChatRoom;
 import ch.trvlr.backend.model.PublicChat;
-import ch.trvlr.backend.model.Station;
 import ch.trvlr.backend.model.Traveler;
 import ch.trvlr.backend.repository.ChatRoomRepository;
-import ch.trvlr.backend.repository.StationRepository;
 import ch.trvlr.backend.repository.TravelerRepository;
+import io.swagger.annotations.ApiOperation;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +31,9 @@ public class PublicChatRoomController {
 		return repository.getAll();
 	}
 
-	@RequestMapping(path = "/api/public-chats", method = RequestMethod.POST, consumes="application/json")
+	@ApiOperation(value = "Create private chat",
+			notes = "The endpoint expects a json request body a list containing the from and to station names e.g. {\"from\": \"Zurich\", \"to\": \"Hoeri\"} ")
+	@RequestMapping(path = "/api/public-chats", method = RequestMethod.POST, consumes = "application/json")
 	public ChatRoom createPublicChat(@RequestBody String postPayload) {
 		JSONObject json = new JSONObject(postPayload);
 		String from = json.getString("from");
@@ -49,19 +49,9 @@ public class PublicChatRoomController {
 		}
 	}
 
-	@RequestMapping(path = "/api/public-chats/search", method = RequestMethod.GET)
-	public List<ChatRoom> findChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {
-		return repository.findChatRoomsForConnection(from, to);
-	}
-
 	@RequestMapping(path = "/api/public-chats/{roomId}", method = RequestMethod.GET)
 	public ChatRoom getPublicChat(@PathVariable int roomId) {
 		return repository.getById(roomId);
-	}
-
-	@RequestMapping(path = "/api/public-chats/list/{travelerId}", method = RequestMethod.GET)
-	public List<ChatRoom> getPublicChatsByTraveler(@PathVariable int travelerId) {
-		return repository.getByTravelerId(travelerId);
 	}
 
 	@RequestMapping(path = "/api/public-chats/{roomId}/travelers", method = RequestMethod.GET)
@@ -69,4 +59,26 @@ public class PublicChatRoomController {
 		TravelerRepository travelerRepository = TravelerRepository.getInstance();
 		return travelerRepository.getAllTravelersForChat(roomId);
 	}
+
+	@ApiOperation(value = "Leave public chat",
+			notes = "The endpoint expects a json request body containing the travelerId e.g. {\"travelerId\": 1} ")
+	@RequestMapping(path = "/api/public-chats/{roomId}/leave", method = RequestMethod.POST, consumes = "application/json")
+	public Boolean leavePublicChat(@PathVariable int roomId, @RequestBody String postPayload) {
+		PublicChat room = (PublicChat) repository.getById(roomId);
+		JSONObject json = new JSONObject(postPayload);
+		Traveler traveler = TravelerRepository.getInstance().getById(json.getInt("travelerId"));
+		room.removeTraveler(traveler);
+		return (repository.save(room) > 0);
+	}
+
+	@RequestMapping(path = "/api/public-chats/search", method = RequestMethod.GET)
+	public List<ChatRoom> findChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {
+		return repository.findChatRoomsForConnection(from, to);
+	}
+
+	@RequestMapping(path = "/api/public-chats/list/{travelerId}", method = RequestMethod.GET)
+	public List<ChatRoom> getPublicChatsByTraveler(@PathVariable int travelerId) {
+		return repository.getByTravelerId(travelerId);
+	}
+
 }

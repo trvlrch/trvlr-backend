@@ -17,4 +17,8 @@ public class PrivateChat extends ChatRoom {
     public PrivateChat(Traveler t1, Traveler t2) {
         super(0, new Date(), (ArrayList<Traveler>)Arrays.asList(t1, t2), new ArrayList<>());
     }
+
+    public PrivateChat() {
+
+    }
 }

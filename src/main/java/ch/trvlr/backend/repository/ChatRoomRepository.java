@@ -48,7 +48,7 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
             PrivateChat c = (PrivateChat)object;
             statement.setNull(1, Types.VARCHAR);
             statement.setNull(2, Types.VARCHAR);
-            statement.setTimestamp(2, new java.sql.Timestamp(object.getCreatedOn().getTime()));
+            statement.setTimestamp(3, new java.sql.Timestamp(object.getCreatedOn().getTime()));
         } else if (object instanceof PublicChat) {
             PublicChat c = (PublicChat)object;
             statement.setInt(1, c.getFrom().getId());
