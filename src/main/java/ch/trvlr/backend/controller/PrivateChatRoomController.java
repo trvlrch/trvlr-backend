@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,6 +94,8 @@ public class PrivateChatRoomController {
 
 	@RequestMapping(path = "/api/private-chats/list/{travelerId}", method = RequestMethod.GET)
 	public List<ChatRoom> getPrivateChatsByTraveler(@PathVariable int travelerId) {
-		return repository.getByTravelerId(travelerId);
+		ArrayList<ChatRoom> rooms = repository.getByTravelerId(travelerId);
+		rooms.removeIf(c -> !c.isPrivate());
+		return rooms;
 	}
 }

@@ -19,6 +19,9 @@ public class ChatRoom implements ISqlObject {
 	private ArrayList<Message> messages = new ArrayList<>();
 	private ArrayList<Traveler> travelers = new ArrayList<>();
 
+	protected Station from = null;
+	protected Station to = null;
+
 	protected ChatRoom() {
 	}
 
@@ -69,6 +72,10 @@ public class ChatRoom implements ISqlObject {
 
 	public void removeTraveler(Traveler traveler) {
 		this.travelers.removeIf(current -> current.getId() == traveler.getId());
+	}
+
+	public boolean isPrivate() {
+		return this.from == null && this.to == null;
 	}
 
 }

@@ -78,7 +78,9 @@ public class PublicChatRoomController {
 
 	@RequestMapping(path = "/api/public-chats/list/{travelerId}", method = RequestMethod.GET)
 	public List<ChatRoom> getPublicChatsByTraveler(@PathVariable int travelerId) {
-		return repository.getByTravelerId(travelerId);
+		ArrayList<ChatRoom> rooms = repository.getByTravelerId(travelerId);
+		rooms.removeIf(ChatRoom::isPrivate);
+		return rooms;
 	}
 
 }

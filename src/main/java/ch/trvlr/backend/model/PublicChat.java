@@ -12,9 +12,6 @@ import java.util.List;
  */
 public class PublicChat extends ChatRoom {
 
-    private Station from;
-    private Station to;
-
     public PublicChat(int id, Station from, Station to, Date createdOn, ArrayList<Traveler> travelers, ArrayList<Message> messages) {
         super(id, createdOn, travelers, messages);
         this.from = from;
