@@ -19,7 +19,7 @@ import java.net.URL;
  *
  * @author Daniel Milenkovic
  */
-public class FirebaseService extends ApiService implements AuthenticationApiInterface {
+public class FirebaseService extends ApiService implements AuthenticationInterface {
 
 	private static final String serviceAccountFilename = "serviceAccountKey.json";
 	private static final String databaseUrl = "https://trvlr-312df.firebaseio.com/";

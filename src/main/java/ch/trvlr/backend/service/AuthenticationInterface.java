@@ -7,7 +7,7 @@ import ch.trvlr.backend.model.Traveler;
  *
  * @author Daniel Milenkovic
  */
-public interface AuthenticationApiInterface {
+public interface AuthenticationInterface {
 
 	Traveler getUserByToken(String token);
 }

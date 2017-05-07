@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-	private static AuthenticationApiInterface api;
+	private static AuthenticationInterface api;
 
 	public UserService() {
 		api = new FirebaseService();
