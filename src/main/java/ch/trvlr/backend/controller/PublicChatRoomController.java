@@ -28,7 +28,7 @@ public class PublicChatRoomController {
 		repository = ChatRoomRepository.getInstance();
 	}
 
-	@RequestMapping("/api/public-chats")
+	@RequestMapping(path = "/api/public-chats", method = RequestMethod.GET)
 	public List<ChatRoom> getAllPublicChats() {
 		return repository.getAll();
 	}
@@ -49,22 +49,22 @@ public class PublicChatRoomController {
 		}
 	}
 
-	@RequestMapping("/api/public-chats/search")
+	@RequestMapping(path = "/api/public-chats/search", method = RequestMethod.GET)
 	public List<ChatRoom> findChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {
 		return repository.findChatRoomsForConnection(from, to);
 	}
 
-	@RequestMapping("/api/public-chats/{roomId}")
+	@RequestMapping(path = "/api/public-chats/{roomId}", method = RequestMethod.GET)
 	public ChatRoom getPublicChat(@PathVariable int roomId) {
 		return repository.getById(roomId);
 	}
 
-	@RequestMapping("/api/public-chats/list/{travelerId}")
+	@RequestMapping(path = "/api/public-chats/list/{travelerId}", method = RequestMethod.GET)
 	public List<ChatRoom> getPublicChatsByTraveler(@PathVariable int travelerId) {
 		return repository.getByTravelerId(travelerId);
 	}
 
-	@RequestMapping("/api/public-chats/{roomId}/travelers")
+	@RequestMapping(path = "/api/public-chats/{roomId}/travelers", method = RequestMethod.GET)
 	public List<Traveler> getAllTravelersForPublicChat(@PathVariable int roomId) {
 		TravelerRepository travelerRepository = TravelerRepository.getInstance();
 		return travelerRepository.getAllTravelersForChat(roomId);

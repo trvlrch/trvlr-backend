@@ -3,6 +3,7 @@ package ch.trvlr.backend.controller;
 import ch.trvlr.backend.model.Station;
 import ch.trvlr.backend.repository.StationRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class StationController {
 		repository = StationRepository.getInstance();
 	}
 
-	@RequestMapping("/api/stations")
+	@RequestMapping(path = "/api/stations", method = RequestMethod.GET)
 	public List<Station> getAllStations() {
 		return repository.getAll();
 	}

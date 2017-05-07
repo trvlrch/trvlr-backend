@@ -34,13 +34,13 @@ public class PrivateChatRoomController {
 		return null;
 	}
 
-	@RequestMapping("/api/private-chats/{roomId}")
+	@RequestMapping(path = "/api/private-chats/{roomId}", method = RequestMethod.GET)
 	public ChatRoom getPrivateChat(@PathVariable int roomId) {
 		// TODO authentication - only members of the chat should be allowed fetch this info
 		return repository.getById(roomId);
 	}
 
-	@RequestMapping("/api/private-chat/{roomId}/travelers")
+	@RequestMapping(path = "/api/private-chat/{roomId}/travelers", method = RequestMethod.GET)
 	public List<Traveler> getAllTravelersForPrivateChat(@PathVariable int roomId) {
 		// TODO authentication - only members of the chat should be allowed fetch this info
 		ChatRoom chatRoom = repository.getById(roomId);
