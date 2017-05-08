@@ -23,6 +23,7 @@ public abstract class Repository<T extends ISqlObject> {
 
 		String connectionString = dbname + "?user=" + user;
 		connectionString += (password != null) ? "&password=" + password : "";
+		connectionString += "&useUnicode=true&characterEncoding=utf-8";
 
 		try {
 			this.dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + connectionString);
