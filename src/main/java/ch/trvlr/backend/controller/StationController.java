@@ -24,6 +24,6 @@ public class StationController {
 
 	@RequestMapping(path = "/api/stations", method = RequestMethod.GET)
 	public List<Station> getAllStations() {
-		return repository.getAll("name", "ASC");
+		return repository.getAll("substr(name, 1, 1) ASC, weight DESC, name ASC");
 	}
 }
