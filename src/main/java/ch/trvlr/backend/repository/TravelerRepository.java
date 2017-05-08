@@ -55,6 +55,20 @@ public class TravelerRepository extends Repository<Traveler> {
         return null;
     }
 
+    public Traveler getByFirebaseId(String firebaseId) {
+        String sql = this.getQueryBuilder().generateSelectQuery(new String[] {"uid"});
+
+        try {
+        	PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+            p.setString(1, firebaseId);
+            return getSingle(p);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public ArrayList<Traveler> getAllTravelersForChat(int chatId) {
         String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("t") +
                      " FROM " + this.getTableName() + " as t, chat_room_traveler as c " +
