@@ -2,8 +2,10 @@ package ch.trvlr.backend.controller;
 
 import ch.trvlr.backend.model.ChatRoom;
 import ch.trvlr.backend.model.PublicChat;
+import ch.trvlr.backend.model.Station;
 import ch.trvlr.backend.model.Traveler;
 import ch.trvlr.backend.repository.ChatRoomRepository;
+import ch.trvlr.backend.repository.StationRepository;
 import ch.trvlr.backend.repository.TravelerRepository;
 import io.swagger.annotations.ApiOperation;
 import org.json.JSONObject;
@@ -73,7 +75,24 @@ public class PublicChatRoomController {
 
 	@RequestMapping(path = "/api/public-chats/search", method = RequestMethod.GET)
 	public List<ChatRoom> findChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {
-		return repository.findChatRoomsForConnection(from, to);
+		List<ChatRoom> rooms = repository.findChatRoomsForConnection(from, to);
+
+		if (rooms.size() == 0) {
+			StationRepository stationRepository = StationRepository.getInstance();
+			Station fromStation = stationRepository.getByName(from);
+			Station toStation = stationRepository.getByName(to);
+
+			// create new public chatroom if both stations are valid
+			if (fromStation != null && toStation != null) {
+				PublicChat room = new PublicChat(fromStation, toStation);
+				int id = repository.save(room);
+				if (id > 0) {
+					room.setId(id);
+					rooms.add(room);
+				}
+			}
+		}
+		return rooms;
 	}
 
 	@RequestMapping(path = "/api/public-chats/list/{travelerId}", method = RequestMethod.GET)
