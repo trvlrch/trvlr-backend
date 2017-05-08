@@ -97,7 +97,20 @@ public abstract class Repository<T extends ISqlObject> {
 	}
 
 	public ArrayList<T> getAll() {
+		return this.getAll(null, null);
+	}
+
+	public ArrayList<T> getAll(String orderByColumn, String orderByType) {
 		String sql = this.queryBuilder.generateSelectQuery();
+
+		if (orderByColumn != null && orderByColumn.length() > 0) {
+			// Only allow "ASC" and "DESC" as order by types.
+			if (orderByType == null || orderByType.compareTo("DESC") != 0) {
+				orderByType = "ASC";
+			}
+
+			sql += " ORDER BY " + orderByColumn + " " + orderByType;
+		}
 
 		try {
 			PreparedStatement p =  this.dbConnection.prepareStatement(sql);

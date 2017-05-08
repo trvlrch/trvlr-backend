@@ -24,6 +24,6 @@ public class StationController {
 
 	@RequestMapping(path = "/api/stations", method = RequestMethod.GET)
 	public List<Station> getAllStations() {
-		return repository.getAll();
+		return repository.getAll("name", "ASC");
 	}
 }
