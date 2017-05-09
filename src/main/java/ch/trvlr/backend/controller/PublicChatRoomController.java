@@ -75,9 +75,16 @@ public class PublicChatRoomController {
 
 	@RequestMapping(path = "/api/public-chats/search", method = RequestMethod.GET)
 	public List<ChatRoom> findChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {
+		return repository.findChatRoomsForConnection(from, to);
+	}
+
+	@RequestMapping(path = "/api/public-chats/join", method = RequestMethod.GET)
+	public List<ChatRoom> joinChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {
 		List<ChatRoom> rooms = repository.findChatRoomsForConnection(from, to);
 
-		if (rooms.size() == 0) {
+		if (rooms == null || rooms.size() == 0) {
+			rooms = new ArrayList<>();
+
 			StationRepository stationRepository = StationRepository.getInstance();
 			Station fromStation = stationRepository.getByName(from);
 			Station toStation = stationRepository.getByName(to);
