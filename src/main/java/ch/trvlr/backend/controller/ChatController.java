@@ -37,7 +37,8 @@ public class ChatController {
 		// store message in database
 		message.setAuthor(traveler);
 		message.setChatRoomId(Integer.parseInt(roomId));
-		MessageRepository.getInstance().save(message);
+		int id = MessageRepository.getInstance().save(message);
+		message.setId(id);
 
 		return message;
 	}
