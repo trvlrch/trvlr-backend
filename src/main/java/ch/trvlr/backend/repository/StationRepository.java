@@ -32,6 +32,7 @@ public class StationRepository extends Repository<Station> {
 	@Override
 	protected void prepareStatement(PreparedStatement statement, Station object) throws SQLException {
 		statement.setString(1, object.getName());
+		statement.setInt(2, object.getWeight());
 	}
 
 	public Station getByName(String name) {
