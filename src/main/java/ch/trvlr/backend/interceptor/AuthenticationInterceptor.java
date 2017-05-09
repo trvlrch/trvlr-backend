@@ -153,10 +153,10 @@ public class AuthenticationInterceptor extends ChannelInterceptorAdapter {
 		System.out.println(headers.toString());
 		Object headersObj = headers.get("nativeHeaders");
 
-		if (headersObj != null) {
-			ObjectMapper m = new ObjectMapper();
-			Map<String, LinkedList<String>> props = m.convertValue(headersObj, Map.class);
-			LinkedList<String> tokenArray = props.get("token");
+		ObjectMapper m = new ObjectMapper();
+		Map<String, LinkedList<String>> props = m.convertValue(headersObj, Map.class);
+		LinkedList<String> tokenArray = props.get("token");
+		if (tokenArray.size() > 0) {
 			return tokenArray.get(0);
 		}
 		return "";
