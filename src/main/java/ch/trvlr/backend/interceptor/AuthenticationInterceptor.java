@@ -55,13 +55,14 @@ public class AuthenticationInterceptor extends ChannelInterceptorAdapter {
 			if (user == null) {
 				sendErrorMessage("Connection denied: invalid login", sessionId);
 			}
+			System.out.println("------ User -----");
+			System.out.println("Connected: " + user.getName());
 			accessor.setUser(user);
 		}
 
 		if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
 			System.out.println("---- Destination -----");
 			System.out.println(accessor.getDestination());
-			System.out.println(accessor.getUser());
 			Traveler user = (Traveler) accessor.getUser();
 			if (!validateChatRoomAccess(user, accessor.getDestination())) {
 				sendErrorMessage("Subscription denied: insufficient permissions", sessionId);
@@ -148,11 +149,17 @@ public class AuthenticationInterceptor extends ChannelInterceptorAdapter {
 	}
 
 	private String parseToken(MessageHeaders headers) {
+		System.out.println("---- Headers ----");
+		System.out.println(headers.toString());
 		Object headersObj = headers.get("nativeHeaders");
-		ObjectMapper m = new ObjectMapper();
-		Map<String, LinkedList<String>> props = m.convertValue(headersObj, Map.class);
-		LinkedList<String> tokenArray = props.get("token");
-		return tokenArray.get(0);
+
+		if (headersObj != null) {
+			ObjectMapper m = new ObjectMapper();
+			Map<String, LinkedList<String>> props = m.convertValue(headersObj, Map.class);
+			LinkedList<String> tokenArray = props.get("token");
+			return tokenArray.get(0);
+		}
+		return "";
 	}
 
 	private void sendErrorMessage(String message, String sessionId) {
@@ -160,6 +167,7 @@ public class AuthenticationInterceptor extends ChannelInterceptorAdapter {
 		headerAccessor.setMessage(message);
 		headerAccessor.setSessionId(sessionId);
 		Message<byte[]> error = MessageBuilder.createMessage(new byte[0], headerAccessor.getMessageHeaders());
+		System.out.println("Error: " + message);
 		this.clientOutboundChannel.send(error);
 	}
 

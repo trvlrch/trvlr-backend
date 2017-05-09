@@ -27,7 +27,7 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/socket").withSockJS();
+		registry.addEndpoint("/socket").setAllowedOrigins("*").withSockJS();
 	}
 
 	@Override
@@ -35,4 +35,8 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 		registration.setInterceptors(new AuthenticationInterceptor(clientOutboundChannel));
 	}
 
+	@Override
+	public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+		registration.setMessageSizeLimit(8 * 1024);
+	}
 }

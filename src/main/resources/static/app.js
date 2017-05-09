@@ -47,9 +47,10 @@ $(function () {
                 obj = JSON.parse(message.body);
                 showMessage(obj.author + ": " + obj.text);
             });
+        }, function(e) {
+            console.log(e);
         });
     };
-
 
     var showMessage = function(message) {
         $("#messages").append("<tr><td>" + message + "</td></tr>");

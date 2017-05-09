@@ -28,6 +28,7 @@ targetCompatibility = 1.8
 
 repositories {
 	mavenCentral()
+	jcenter()
 }
 
 
@@ -51,4 +52,5 @@ dependencies {
 			"org.webjars:jquery:3.1.0"
 
     testCompile "org.springframework.boot:spring-boot-starter-test"
+	testCompile "org.mockito:mockito-core:2.+"
 }
