@@ -11,9 +11,12 @@ public class Station implements ISqlObject {
 
 	private int id;
 	private String name;
+	private int weight;
 
-	public Station() {
-
+	public Station(int id, String name, int weight) {
+		this.id = id;
+		this.name = name;
+		this.weight = weight;
 	}
 
 	public Station(int id, String name) {
@@ -23,6 +26,9 @@ public class Station implements ISqlObject {
 
 	public Station(String name) {
 		this.name = name;
+	}
+
+	public Station() {
 	}
 
 	public int getId() {
@@ -39,6 +45,14 @@ public class Station implements ISqlObject {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public int getWeight() {
+		return this.weight;
+	}
+
+	public void setWeight(int weight) {
+		this.weight = weight;
 	}
 
 	public String toString() {
