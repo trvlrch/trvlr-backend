@@ -264,3 +264,5 @@ INSERT INTO station (name) VALUES ('Zürich Wiedikon');
 INSERT INTO station (name) VALUES ('Zürich Wipkingen');
 INSERT INTO station (name) VALUES ('Zürich Wollishofen');
 INSERT INTO station (name) VALUES ('Zweidlen');
+
+ALTER TABLE station ADD COLUMN `weight` int(11) NOT NULL DEFAULT '0';

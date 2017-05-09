@@ -12,7 +12,7 @@ public class StationRepository extends Repository<Station> {
 
 	protected StationRepository() {
 		super("station", new String[]{
-				"id", "name"
+				"id", "name", "weight"
 		});
 	}
 
@@ -24,8 +24,9 @@ public class StationRepository extends Repository<Station> {
 	protected Station convertToBusinessObject(ResultSet rs) throws SQLException {
 		int id = rs.getInt(1);
 		String name = rs.getString(2);
+		int weight = rs.getInt(3);
 
-		return new Station(id, name);
+		return new Station(id, name, weight);
 	}
 
 	@Override
