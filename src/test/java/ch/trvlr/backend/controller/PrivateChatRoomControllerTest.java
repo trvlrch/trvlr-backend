@@ -1,9 +1,21 @@
 package ch.trvlr.backend.controller;
 
+import ch.trvlr.backend.model.*;
+import ch.trvlr.backend.repository.ChatRoomRepository;
+import ch.trvlr.backend.repository.TravelerRepository;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 
 /**
  * trvlr-backend
@@ -11,32 +23,145 @@ import static org.junit.Assert.*;
  * @author Daniel Milenkovic
  */
 public class PrivateChatRoomControllerTest {
+
+	private PrivateChat mockOne;
+	private PrivateChat mockTwo;
+
+	private ArrayList<Traveler> travelers;
+
 	@Before
 	public void setUp() throws Exception {
+		travelers = new ArrayList<>();
+		travelers.add(new Traveler());
+		travelers.add(new Traveler());
+
+		ArrayList<Message> messages = new ArrayList<>();
+		messages.add(new Message());
+
+		mockOne = new PrivateChat(2, new Date(), travelers, messages);
+		mockTwo = new PrivateChat();
 	}
 
 	@Test
-	public void createPrivateChat() throws Exception {
+	public void createPrivateChat() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+
+		when(mockedTravelerRepo.getById(anyInt())).thenReturn(
+				new Traveler(1,"","","",""),
+				new Traveler(2,"","","",""));
+		when(mockedRepo.save(anyObject())).thenReturn(1);
+
+		PrivateChatRoomController privateChat = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		String postPayload = "{\"travelerIds\": [1, 2]}";
+		ChatRoom chat = privateChat.createPrivateChat(postPayload);
+
+		assertNotNull(chat.getAllTravelers());
+		assertEquals(2, chat.getAllTravelers().size());
 	}
 
 	@Test
-	public void getPrivateChat() throws Exception {
+	public void createPrivateChatWithInvalidIds() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+
+		when(mockedRepo.save(anyObject())).thenReturn(1);
+
+		PrivateChatRoomController privateChat = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		String postPayload = "{\"travelerIds\": []}";
+		ChatRoom chat = privateChat.createPrivateChat(postPayload);
+
+		assertNull(chat);
+	}
+
+	@Test(expected=org.json.JSONException.class)
+	public void createPrivateChatWithInvalidJson() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+
+		when(mockedRepo.save(anyObject())).thenReturn(1);
+
+		PrivateChatRoomController privateChat = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		String postPayload = "error";
+		ChatRoom chat = privateChat.createPrivateChat(postPayload);
+	}
+
+	@Test
+	public void getPrivateChat() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+
+		when(mockedRepo.getById(anyInt())).thenReturn(mockOne);
+
+		PrivateChatRoomController privateChat = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		ChatRoom newChat = privateChat.getPrivateChat(2);
+		assertEquals(newChat, mockOne);
 	}
 
 	@Test
 	public void getAllTravelersForPrivateChat() throws Exception {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+
+		when(mockedRepo.getById(anyInt())).thenReturn(mockOne);
+
+		PrivateChatRoomController privateChat = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		List<Traveler> testTravelers = privateChat.getAllTravelersForPrivateChat(1);
+		assertEquals(testTravelers, travelers);
 	}
 
 	@Test
-	public void createPrivateChat1() throws Exception {
+	public void leavePrivateChat() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+		
+		PrivateChat mockChat = new PrivateChat();
+		Traveler traveler = new Traveler(1, "", "", "", "");
+		mockChat.addTraveler(traveler);
+		when(mockedTravelerRepo.getById(anyInt())).thenReturn(traveler);
+		when(mockedRepo.getById(anyInt())).thenReturn(mockTwo);
+		when(mockedRepo.save(anyObject())).thenReturn(1);
+
+		PrivateChatRoomController privateChat = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		String postPayload = "{\"travelerId\": 1}";
+		assertTrue(privateChat.leavePrivateChat(1, postPayload));
+	}
+
+	@Test(expected=org.json.JSONException.class)
+	public void leavePrivateChatWithInvalidJson() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+
+		PrivateChatRoomController privateChat = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		String postPayload = "errr";
+		privateChat.leavePrivateChat(1, postPayload);
 	}
 
 	@Test
-	public void leavePrivateChat() throws Exception {
-	}
+	public void getPrivateChatsByTraveler() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
 
-	@Test
-	public void getPrivateChatsByTraveler() throws Exception {
+		ArrayList<ChatRoom> chatRooms = new ArrayList<>();
+		chatRooms.add(mockOne);
+		chatRooms.add(new PublicChat(new Station(), new Station()));
+		when(mockedRepo.getByTravelerId(anyInt())).thenReturn(chatRooms);
+
+		PrivateChatRoomController privateChat = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		// this should only return private chats
+		List<ChatRoom> rooms = privateChat.getPrivateChatsByTraveler(1);
+
+		assertNotNull(rooms);
+		assertEquals(rooms.size(), 1);
+		assertEquals(rooms.get(0), mockOne);
 	}
 
 }

@@ -10,7 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,14 +21,21 @@ import java.util.List;
 @RestController
 public class PrivateChatRoomController {
 
-	private static ChatRoomRepository repository;
+	private static ChatRoomRepository chatRoomRepository;
+	private static TravelerRepository travelerRepository;
 
 	public PrivateChatRoomController() {
-		repository = ChatRoomRepository.getInstance();
+		chatRoomRepository = ChatRoomRepository.getInstance();
+		travelerRepository = TravelerRepository.getInstance();
+	}
+
+	public PrivateChatRoomController(ChatRoomRepository chatRepo, TravelerRepository travelerRepo) {
+		chatRoomRepository = chatRepo;
+		travelerRepository = travelerRepo;
 	}
 
 	@ApiOperation(value = "Create private chat",
-			notes = "The endpoint expects a json request body a list containing the travelerIds to add e.g. [{\"travelerId\": 1}, {\"travelerId\": 2}] ")
+			notes = "The endpoint expects a json request body a list containing the travelerIds to add e.g. {\"travelerIds\": [1, 2]} ")
 	@RequestMapping(path = "/api/private-chats", method = RequestMethod.POST, consumes = "application/json")
 	public ChatRoom createPrivateChat(@RequestBody String postPayload) {
 		JSONObject json = new JSONObject(postPayload);
@@ -38,11 +44,11 @@ public class PrivateChatRoomController {
 		if (ids.length() > 0) {
 			PrivateChat room = new PrivateChat();
 			for (int i = 0; i < ids.length(); i++) {
-				Traveler traveler = TravelerRepository.getInstance().getById(ids.getInt(i));
+				Traveler traveler = travelerRepository.getById(ids.getInt(i));
 				room.addTraveler(traveler);
 			}
 
-			int id = repository.save(room);
+			int id = chatRoomRepository.save(room);
 
 			if (id > 0) {
 				room.setId(id);
@@ -55,26 +61,26 @@ public class PrivateChatRoomController {
 	@RequestMapping(path = "/api/private-chats/{roomId}", method = RequestMethod.GET)
 	public ChatRoom getPrivateChat(@PathVariable int roomId) {
 		// TODO authentication - only members of the chat should be allowed fetch this info
-		return repository.getById(roomId);
+		return chatRoomRepository.getById(roomId);
 	}
 
 	@RequestMapping(path = "/api/private-chat/{roomId}/travelers", method = RequestMethod.GET)
 	public List<Traveler> getAllTravelersForPrivateChat(@PathVariable int roomId) {
 		// TODO authentication - only members of the chat should be allowed fetch this info
-		ChatRoom chatRoom = repository.getById(roomId);
+		ChatRoom chatRoom = chatRoomRepository.getById(roomId);
 		return chatRoom.getAllTravelers();
 	}
 
 	@ApiOperation(value = "Join private chat",
 			notes = "The endpoint expects a json request body containing the travelerId e.g. {\"travelerId\": 1} ")
 	@RequestMapping(path = "/api/private-chats/{roomId}/join", method = RequestMethod.POST, consumes = "application/json")
-	public ChatRoom createPrivateChat(@PathVariable int roomId, @RequestBody String postPayload) {
-		PrivateChat room = (PrivateChat) repository.getById(roomId);
+	public ChatRoom joinPrivateChat(@PathVariable int roomId, @RequestBody String postPayload) {
+		PrivateChat room = (PrivateChat) chatRoomRepository.getById(roomId);
 		JSONObject json = new JSONObject(postPayload);
-		Traveler traveler = TravelerRepository.getInstance().getById(json.getInt("travelerId"));
+		Traveler traveler = travelerRepository.getById(json.getInt("travelerId"));
 
 		room.addTraveler(traveler);
-		if (repository.save(room) > 0) {
+		if (chatRoomRepository.save(room) > 0) {
 			return room;
 		}
 		return null;
@@ -84,17 +90,17 @@ public class PrivateChatRoomController {
 			notes = "The endpoint expects a json request body containing the travelerId e.g. {\"travelerId\": 1} ")
 	@RequestMapping(path = "/api/private-chats/{roomId}/leave", method = RequestMethod.POST, consumes = "application/json")
 	public Boolean leavePrivateChat(@PathVariable int roomId, @RequestBody String postPayload) {
-		PrivateChat room = (PrivateChat) repository.getById(roomId);
+		PrivateChat room = (PrivateChat) chatRoomRepository.getById(roomId);
 		JSONObject json = new JSONObject(postPayload);
-		Traveler traveler = TravelerRepository.getInstance().getById(json.getInt("travelerId"));
+		Traveler traveler = travelerRepository.getById(json.getInt("travelerId"));
 
 		room.removeTraveler(traveler);
-		return (repository.save(room) > 0);
+		return (chatRoomRepository.save(room) > 0);
 	}
 
 	@RequestMapping(path = "/api/private-chats/list/{travelerId}", method = RequestMethod.GET)
 	public List<ChatRoom> getPrivateChatsByTraveler(@PathVariable int travelerId) {
-		ArrayList<ChatRoom> rooms = repository.getByTravelerId(travelerId);
+		ArrayList<ChatRoom> rooms = chatRoomRepository.getByTravelerId(travelerId);
 		rooms.removeIf(c -> !c.isPrivate());
 		return rooms;
 	}
