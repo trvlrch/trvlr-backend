@@ -119,7 +119,7 @@ public class PrivateChatRoomControllerTest {
 	public void leavePrivateChat() {
 		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
 		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
-		
+
 		PrivateChat mockChat = new PrivateChat();
 		Traveler traveler = new Traveler(1, "", "", "", "");
 		mockChat.addTraveler(traveler);

@@ -24,18 +24,6 @@ public class PublicChat extends ChatRoom {
         this.to = to;
     }
 
-    public PublicChat(String from, String to) {
-        super(0, new Date(), new ArrayList<>(), new ArrayList<>());
-
-        StationRepository stationRepository =  StationRepository.getInstance();
-
-        Station fromStation = stationRepository.getByName(from);
-		Station toStation = stationRepository.getByName(to);
-
-		this.from = (fromStation == null) ? new Station(from) : fromStation;
-        this.to = (toStation == null) ? new Station(to) : toStation;
-    }
-
     public Station getFrom() {
         return this.from;
     }
