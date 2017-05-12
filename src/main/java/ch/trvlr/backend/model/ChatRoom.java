@@ -37,7 +37,6 @@ public class ChatRoom implements ISqlObject {
 		this.createdOn = createdOn;
 		this.messages = messages;
 
-		this.travelers = new ArrayList<>();
 		travelers.add(t1);
 		travelers.add(t2);
 	}

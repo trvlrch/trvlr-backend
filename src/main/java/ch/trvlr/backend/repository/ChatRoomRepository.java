@@ -234,6 +234,7 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
                 Traveler t1 = travelerInstance.getById(userId1);
                 Traveler t2 = travelerInstance.getById(userId2);
                 PrivateChat room = (PrivateChat) new PrivateChat(t1, t2);
+                this.save(room);
 
                 return room;
             }
