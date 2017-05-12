@@ -125,7 +125,7 @@ public class AuthenticationInterceptor extends ChannelInterceptorAdapter {
 
 			// if private room check user permissions
 			if (room instanceof PrivateChat) {
-				Traveler traveler = room.getTraveler(user.getId());
+				Traveler traveler = room.getTravelerById(user.getId());
 				if (traveler == null) {
 					return false;
 				}

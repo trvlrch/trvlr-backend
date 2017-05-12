@@ -65,8 +65,17 @@ public class ChatRoom implements ISqlObject {
 		this.messages.add(message);
 	}
 
-	public Traveler getTraveler(int id) {
-		return this.travelers.get(id);
+	public Traveler getTraveler(int index) {
+		return this.travelers.get(index);
+	}
+
+	public Traveler getTravelerById(int id) {
+		for (Traveler traveler : this.travelers) {
+			if (traveler.getId() == id) {
+				return traveler;
+			}
+		}
+		return null;
 	}
 
 	public List<Traveler> getAllTravelers() {
