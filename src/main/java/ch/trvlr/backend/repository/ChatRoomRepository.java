@@ -131,6 +131,25 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 
     }
 
+    public ArrayList<ChatRoom> getMostPopular(int limit) {
+        String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("c") +
+                        ", (SELECT COUNT(id) from chat_room_traveler as ct WHERE ct.chat_room_id  = c.id) AS trvlr_count " +
+                    " FROM " + this.getTableName() + " as c" +
+                    " WHERE `from` IS NOT NULL" +
+                    " AND `to` IS NOT NULL" +
+                    " ORDER BY trvlr_count DESC" +
+                    " LIMIT ? ";
+
+        try {
+            PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+            p.setInt(1, limit);
+            return getList(p);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public ArrayList<ChatRoom> findChatRoomsForConnection(String from, String to) {
         String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("c") +
                      " FROM " + this.getTableName() + " as c, station as s " +

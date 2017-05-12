@@ -98,18 +98,22 @@ public abstract class Repository<T extends ISqlObject> {
 	}
 
 	public ArrayList<T> getAll() {
-		return this.getAll(null);
+		return this.getAll(null, 0);
 	}
 
 	public ArrayList<T> getAll(String orderByClause) {
-		String sql = this.queryBuilder.generateSelectQuery();
+		return this.getAll(orderByClause, 0);
+	}
 
-		if (orderByClause != null && orderByClause.length() > 0) {
-			sql += " ORDER BY " + orderByClause;
-		}
+	public ArrayList<T> getAll(int limit) {
+		return this.getAll(null, limit);
+	}
+
+	public ArrayList<T> getAll(String orderByClause, int limit) {
+		String sql = this.queryBuilder.generateSelectQuery(orderByClause, limit);
 
 		try {
-			PreparedStatement p =  this.dbConnection.prepareStatement(sql);
+			PreparedStatement p =  this.getDbConnection().prepareStatement(sql);
 			return getList(p);
 
 		} catch (SQLException e) {

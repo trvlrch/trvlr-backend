@@ -39,8 +39,13 @@ public class PublicChatRoomController {
 	}
 
 	@RequestMapping(path = "/api/public-chats", method = RequestMethod.GET)
-	public List<ChatRoom> getAllPublicChats() {
-		List<ChatRoom> rooms = chatRoomRepository.getAll();
+	public List<ChatRoom> getAllPublicChats(@RequestParam(value = "orderby", required = false) String orderby, @RequestParam(value = "limit", required = false, defaultValue = "0") int limit) {
+		List<ChatRoom> rooms;
+		if (orderby != null && orderby.equals("popularity")) {
+			rooms = chatRoomRepository.getMostPopular(limit);
+		} else {
+			rooms = chatRoomRepository.getAll(limit);
+		}
 		rooms.removeIf(ChatRoom::isPrivate);
 		return rooms;
 	}
@@ -94,6 +99,7 @@ public class PublicChatRoomController {
 	public List<ChatRoom> findChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {
 		return chatRoomRepository.findChatRoomsForConnection(from, to);
 	}
+
 
 	@RequestMapping(path = "/api/public-chats/join", method = RequestMethod.GET)
 	public List<ChatRoom> joinChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {

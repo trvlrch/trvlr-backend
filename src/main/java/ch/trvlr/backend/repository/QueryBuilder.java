@@ -45,8 +45,23 @@ public class QueryBuilder {
 	}
 
 	public String generateSelectQuery() {
-		return "SELECT " + this.getFieldsAsStringForSelect() +
+		return generateSelectQuery(null, 0);
+	}
+
+	public String generateSelectQuery(String orderBy, int limit) {
+		String sql = "SELECT " + this.getFieldsAsStringForSelect() +
 				" FROM " + this.getTableTame();
+
+
+		if (orderBy != null && orderBy.length() > 0) {
+			sql += " ORDER BY " + orderBy;
+		}
+
+		if (limit > 0) {
+			sql += " LIMIT " + limit;
+		}
+
+		return sql;
 	}
 
 	public String generateSelectQuery(String[] whereFields) {

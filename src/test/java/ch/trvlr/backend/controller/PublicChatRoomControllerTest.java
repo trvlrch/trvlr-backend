@@ -50,7 +50,7 @@ public class PublicChatRoomControllerTest {
 
 		PublicChatRoomController chat = new PublicChatRoomController(mockedRepo, mockedTravelerRepo, mockedStationRepo);
 
-		List<ChatRoom> allRooms = chat.getAllPublicChats();
+		List<ChatRoom> allRooms = chat.getAllPublicChats("", 1);
 
 		assertNotNull(allRooms);
 		assertEquals(allRooms.size(), 1);
@@ -179,6 +179,24 @@ public class PublicChatRoomControllerTest {
 
 	@Test
 	public void getPublicChatsByTraveler() throws Exception {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+		StationRepository mockedStationRepo = mock(StationRepository.class);
+
+		ArrayList<ChatRoom> chatRooms = new ArrayList<>();
+		chatRooms.add(immutableMock);
+		chatRooms.add(new PrivateChat());
+		when(mockedRepo.getByTravelerId(anyInt())).thenReturn(chatRooms);
+
+		PublicChatRoomController publicChat = new PublicChatRoomController(mockedRepo, mockedTravelerRepo, mockedStationRepo);
+
+		// this should only return private chats
+		List<ChatRoom> rooms = publicChat.getPublicChatsByTraveler(1);
+
+		assertNotNull(rooms);
+		assertEquals(rooms.size(), 1);
+		assertEquals(rooms.get(0), immutableMock);
+
 	}
 
 }
