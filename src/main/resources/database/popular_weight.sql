@@ -1,1 +1,1 @@
-ALTER TABLE station ADD COLUMN `popular_weight` int(11) NOT NULL DEFAULT '0';
+ALTER TABLE chat_room ADD COLUMN `weight` int(11) NOT NULL DEFAULT '0' AFTER `to`;
