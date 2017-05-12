@@ -32,6 +32,16 @@ public class ChatRoom implements ISqlObject {
 		this.messages = messages;
 	}
 
+	protected ChatRoom(int id, Date createdOn, Traveler t1, Traveler t2, ArrayList<Message> messages) {
+		this.id = id;
+		this.createdOn = createdOn;
+		this.messages = messages;
+
+		this.travelers = new ArrayList<>();
+		travelers.add(t1);
+		travelers.add(t2);
+	}
+
 	public int getId() {
 		return this.id;
 	}
