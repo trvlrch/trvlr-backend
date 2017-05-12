@@ -11,6 +11,9 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 
     private static ChatRoomRepository instance = new ChatRoomRepository();
 
+    // Needed for getPrivateChat().
+    private static TravelerRepository travelerInstance = new TravelerRepository();
+
     protected ChatRoomRepository() {
         super("chat_room", new String[] {
                 "id", "from", "to", "created_on"
@@ -177,6 +180,63 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
             PreparedStatement p = this.getDbConnection().prepareStatement(sql);
             p.setInt(1, travelerId);
             return getList(p);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get a private chat for two users.
+     * If the private chat room does not exist yet, one will be created.
+     * Per two users only one room will be created. This is achieved by ensuring that userId1 is always
+     * LOWER than userId2.
+     */
+    public ChatRoom getPrivateChat(int userId1, int userId2) {
+        // Ensure that userId1 is lower than userId2.
+        if (userId1 > userId2) {
+            int swap = userId2;
+            userId2 = userId1;
+            userId1 = swap;
+        }
+
+        // TODO: Refactor this.
+        String sql = ""
+            + " SELECT r.id"
+            + " FROM chat_room AS r"
+            + " JOIN ("
+                + " SELECT sub1.chat_room_id"
+                + " FROM chat_room_traveler sub1"
+                + " WHERE sub1.traveler_id = ?"
+            + " ) p1 ON p1.chat_room_id = r.id"
+            + " JOIN ("
+                + " SELECT sub2.chat_room_id"
+                + " FROM chat_room_traveler sub2"
+                + " WHERE sub2.traveler_id = ?"
+            + " ) p2 ON p2.chat_room_id = r.id"
+            + " WHERE"
+            + " `from` IS NULL"
+            + " AND `to` IS NULL";
+
+        try {
+            PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+            p.setInt(1, userId1);
+            p.setInt(2, userId2);
+
+            ResultSet rs = p.executeQuery();
+
+            if (rs.isBeforeFirst() && rs.next()) {
+                // Private chat room already exists, return this chat room.
+                return this.getById(rs.getInt("id"));
+            } else {
+                // Private chat room doesn't exist yet, create it.
+                Traveler t1 = travelerInstance.getById(userId1);
+                Traveler t2 = travelerInstance.getById(userId2);
+                PrivateChat room = (PrivateChat) new PrivateChat(t1, t2);
+
+                return room;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
