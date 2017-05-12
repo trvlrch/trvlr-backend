@@ -25,6 +25,10 @@ public class TravelerController {
 		repository = TravelerRepository.getInstance();
 	}
 
+	public TravelerController(TravelerRepository repo) {
+		repository = repo;
+	}
+
 	@RequestMapping(path = "/api/traveler/{firebaseId}", method = RequestMethod.GET)
 	public Traveler getUserDataByFirebaseId(@PathVariable String firebaseId) {
 		return repository.getByFirebaseId(firebaseId);

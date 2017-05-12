@@ -3,8 +3,11 @@ package ch.trvlr.backend.controller;
 import ch.trvlr.backend.model.*;
 import ch.trvlr.backend.repository.ChatRoomRepository;
 import ch.trvlr.backend.repository.TravelerRepository;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -103,6 +106,19 @@ public class PrivateChatRoomControllerTest {
 	}
 
 	@Test
+	public void getOrCreatePrivateChat() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+
+		when(mockedRepo.getOrCreatePrivateChat(anyInt(), anyInt())).thenReturn(mockOne);
+
+		PrivateChatRoomController privateChat = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		ChatRoom newChat = privateChat.getOrCreatePrivateChat(1, 2);
+		assertEquals(newChat, mockOne);
+	}
+
+	@Test
 	public void getAllTravelersForPrivateChat() throws Exception {
 		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
 		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
@@ -113,6 +129,37 @@ public class PrivateChatRoomControllerTest {
 
 		List<Traveler> testTravelers = privateChat.getAllTravelersForPrivateChat(1);
 		assertEquals(testTravelers, travelers);
+	}
+
+	@Test
+	public void joinPrivateChat() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+
+		PrivateChat mockChat = new PrivateChat();
+		Traveler traveler = new Traveler(1, "", "", "", "");
+		when(mockedTravelerRepo.getById(anyInt())).thenReturn(traveler);
+		when(mockedRepo.getById(anyInt())).thenReturn(mockChat);
+		when(mockedRepo.save(anyObject())).thenReturn(1);
+
+		PrivateChatRoomController controller = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		String postPayload = "{\"travelerId\": 1}";
+		ChatRoom result = controller.joinPrivateChat(1, postPayload);
+
+		assertNotNull(result);
+		assertEquals(result.getAllTravelers().get(0), traveler);
+	}
+
+	@Test(expected=org.json.JSONException.class)
+	public void joinPrivateChatWithInvalidJson() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+
+		PrivateChatRoomController controller = new PrivateChatRoomController(mockedRepo, mockedTravelerRepo);
+
+		String postPayload = "errr";
+		controller.joinPrivateChat(1, postPayload);
 	}
 
 	@Test

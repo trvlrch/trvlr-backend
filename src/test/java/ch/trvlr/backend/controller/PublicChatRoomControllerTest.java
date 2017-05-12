@@ -174,11 +174,24 @@ public class PublicChatRoomControllerTest {
 	}
 
 	@Test
-	public void findChatRoomsForConnection() throws Exception {
+	public void findChatRoomsForConnection() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+		StationRepository mockedStationRepo = mock(StationRepository.class);
+
+		ArrayList<ChatRoom> chatRooms = new ArrayList<>();
+		chatRooms.add(immutableMock);
+		when(mockedRepo.findChatRoomsForConnection(anyString(), anyString())).thenReturn(chatRooms);
+
+		PublicChatRoomController chat = new PublicChatRoomController(mockedRepo, mockedTravelerRepo, mockedStationRepo);
+
+		List<ChatRoom> result = chat.findChatRoomsForConnection("foo", "bar");
+		assertNotNull(result);
+		assertEquals(result.size(), 1);
 	}
 
 	@Test
-	public void getPublicChatsByTraveler() throws Exception {
+	public void getPublicChatsByTraveler() {
 		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
 		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
 		StationRepository mockedStationRepo = mock(StationRepository.class);
@@ -196,7 +209,64 @@ public class PublicChatRoomControllerTest {
 		assertNotNull(rooms);
 		assertEquals(rooms.size(), 1);
 		assertEquals(rooms.get(0), immutableMock);
-
 	}
+
+	@Test
+	public void joinChatRoomsForConnection() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+		StationRepository mockedStationRepo = mock(StationRepository.class);
+
+		ArrayList<ChatRoom> chatRooms = new ArrayList<>();
+		chatRooms.add(immutableMock);
+		when(mockedRepo.findChatRoomsForConnection(anyString(), anyString())).thenReturn(chatRooms);
+
+		PublicChatRoomController publicChat = new PublicChatRoomController(mockedRepo, mockedTravelerRepo, mockedStationRepo);
+
+		List<ChatRoom> rooms = publicChat.joinChatRoomsForConnection("foo", "bar");
+
+		assertNotNull(rooms);
+		assertEquals(rooms.size(), 1);
+		assertEquals(rooms.get(0), immutableMock);
+	}
+
+	@Test
+	public void joinChatRoomsForConnectionWithoutExistingRooms() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+		StationRepository mockedStationRepo = mock(StationRepository.class);
+
+		when(mockedRepo.findChatRoomsForConnection(anyString(), anyString())).thenReturn(null);
+		when(mockedRepo.save(anyObject())).thenReturn(1);
+		when(mockedStationRepo.getByName(anyString())).thenReturn(new Station("foo"), new Station("bar"));
+
+		PublicChatRoomController publicChat = new PublicChatRoomController(mockedRepo, mockedTravelerRepo, mockedStationRepo);
+
+		List<ChatRoom> rooms = publicChat.joinChatRoomsForConnection("foo", "bar");
+
+		assertNotNull(rooms);
+		assertEquals(rooms.size(), 1);
+	}
+
+	@Test
+	public void joinChatRoomsForConnectionWithInvalidStations() {
+		ChatRoomRepository mockedRepo = mock(ChatRoomRepository.class);
+		TravelerRepository mockedTravelerRepo = mock(TravelerRepository.class);
+		StationRepository mockedStationRepo = mock(StationRepository.class);
+
+		ArrayList<ChatRoom> chatRooms = new ArrayList<>();
+		chatRooms.add(immutableMock);
+		when(mockedRepo.findChatRoomsForConnection(anyString(), anyString())).thenReturn(null);
+		when(mockedRepo.save(anyObject())).thenReturn(1);
+		when(mockedStationRepo.getByName(anyString())).thenReturn(null);
+
+		PublicChatRoomController publicChat = new PublicChatRoomController(mockedRepo, mockedTravelerRepo, mockedStationRepo);
+
+		List<ChatRoom> rooms = publicChat.joinChatRoomsForConnection("foo", "bar");
+
+		assertNotNull(rooms);
+		assertEquals(rooms.size(), 0);
+	}
+
 
 }

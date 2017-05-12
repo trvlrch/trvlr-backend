@@ -108,7 +108,6 @@ public class PublicChatRoomController {
 		if (rooms == null || rooms.size() == 0) {
 			rooms = new ArrayList<>();
 
-			StationRepository stationRepository = StationRepository.getInstance();
 			Station fromStation = stationRepository.getByName(from);
 			Station toStation = stationRepository.getByName(to);
 
