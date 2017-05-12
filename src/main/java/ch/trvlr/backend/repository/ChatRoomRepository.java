@@ -2,7 +2,10 @@ package ch.trvlr.backend.repository;
 
 import ch.trvlr.backend.model.*;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -190,39 +193,22 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
     /**
      * Get a private chat for two users.
      * If the private chat room does not exist yet, one will be created.
-     * Per two users only one room will be created. This is achieved by ensuring that userId1 is always
-     * LOWER than userId2.
      */
-    public ChatRoom getPrivateChat(int userId1, int userId2) {
-        // Ensure that userId1 is lower than userId2.
-        if (userId1 > userId2) {
-            int swap = userId2;
-            userId2 = userId1;
-            userId1 = swap;
-        }
-
-        // TODO: Refactor this.
-        String sql = ""
-            + " SELECT r.id"
-            + " FROM chat_room AS r"
-            + " JOIN ("
-                + " SELECT sub1.chat_room_id"
-                + " FROM chat_room_traveler sub1"
-                + " WHERE sub1.traveler_id = ?"
-            + " ) p1 ON p1.chat_room_id = r.id"
-            + " JOIN ("
-                + " SELECT sub2.chat_room_id"
-                + " FROM chat_room_traveler sub2"
-                + " WHERE sub2.traveler_id = ?"
-            + " ) p2 ON p2.chat_room_id = r.id"
-            + " WHERE"
-            + " `from` IS NULL"
-            + " AND `to` IS NULL";
+    public ChatRoom getOrCreatePrivateChat(int travelerId1, int travelerId2) {
+        String sql = "" +
+                " SELECT DISTINCT r.id" +
+                " FROM chat_room AS r" +
+                "  JOIN chat_room_traveler AS ct1 ON ct1.chat_room_id = r.id AND ct1.traveler_id = ?" +
+                "  JOIN chat_room_traveler AS ct2 ON ct2.chat_room_id = r.id AND ct2.traveler_id = ?" +
+                " WHERE" +
+                "  ct1.chat_room_id = ct2.chat_room_id" +
+                "  AND `from` IS NULL" +
+                "  AND `to` IS NULL";
 
         try {
             PreparedStatement p = this.getDbConnection().prepareStatement(sql);
-            p.setInt(1, userId1);
-            p.setInt(2, userId2);
+            p.setInt(1, travelerId1);
+            p.setInt(2, travelerId2);
 
             ResultSet rs = p.executeQuery();
 
@@ -231,11 +217,11 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
                 return this.getById(rs.getInt("id"));
             } else {
                 // Private chat room doesn't exist yet, create it.
-                Traveler t1 = travelerInstance.getById(userId1);
-                Traveler t2 = travelerInstance.getById(userId2);
-                PrivateChat room = (PrivateChat) new PrivateChat(t1, t2);
-                this.save(room);
-
+                Traveler t1 = travelerInstance.getById(travelerId1);
+                Traveler t2 = travelerInstance.getById(travelerId2);
+                PrivateChat room = new PrivateChat(t1, t2);
+                int id = this.save(room);
+                room.setId(id);
                 return room;
             }
         } catch (SQLException e) {

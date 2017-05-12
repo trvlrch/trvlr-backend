@@ -64,10 +64,10 @@ public class PrivateChatRoomController {
 		return chatRoomRepository.getById(roomId);
 	}
 
-	@RequestMapping(path = "/api/private-chats/{uId1}/{uId2}", method = RequestMethod.GET)
-	public ChatRoom getPrivateChat(@PathVariable int uId1, @PathVariable int uId2) {
+	@RequestMapping(path = "/api/private-chats/{travelerId1}/{travelerId2}", method = RequestMethod.GET)
+	public ChatRoom getOrCreatePrivateChat(@PathVariable int travelerId1, @PathVariable int travelerId2) {
 		// TODO authentication - only members of the chat should be allowed fetch this info
-		return chatRoomRepository.getPrivateChat(uId1, uId2);
+		return chatRoomRepository.getOrCreatePrivateChat(travelerId1, travelerId2);
 	}
 
 	@RequestMapping(path = "/api/private-chat/{roomId}/travelers", method = RequestMethod.GET)

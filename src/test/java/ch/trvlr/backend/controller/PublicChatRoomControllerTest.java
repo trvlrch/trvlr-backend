@@ -46,11 +46,11 @@ public class PublicChatRoomControllerTest {
 		rooms.add(immutableMock);
 		rooms.add(new PrivateChat());
 
-		when(mockedRepo.getAll()).thenReturn(rooms);
+		when(mockedRepo.getAll(anyInt())).thenReturn(rooms);
 
 		PublicChatRoomController chat = new PublicChatRoomController(mockedRepo, mockedTravelerRepo, mockedStationRepo);
 
-		List<ChatRoom> allRooms = chat.getAllPublicChats("", 1);
+		List<ChatRoom> allRooms = chat.getAllPublicChats("", 0);
 
 		assertNotNull(allRooms);
 		assertEquals(allRooms.size(), 1);
