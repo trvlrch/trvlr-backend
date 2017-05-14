@@ -177,7 +177,10 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
     public ArrayList<ChatRoom> getByTravelerId(int travelerId) {
         String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("t") +
                 " FROM " + this.getTableName() + " as t " +
-                " JOIN chat_room_traveler as c ON t.`id` = c.`chat_room_id` AND c.`traveler_id` = ?";
+                " JOIN chat_room_traveler as c ON t.`id` = c.`chat_room_id` AND c.`traveler_id` = ?" +
+                " LEFT JOIN station s_from on s_from.id = t.`from`" +
+                " LEFT JOIN station s_to on s_to.id = r.`to`" +
+                " ORDER BY CONCAT(s_from.name, s_to.name) ASC";
 
         try {
             PreparedStatement p = this.getDbConnection().prepareStatement(sql);
