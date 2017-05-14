@@ -13,7 +13,6 @@ import java.util.List;
 
 public class ChatRoomRepository extends Repository<ChatRoom> {
 
-<<<<<<< HEAD
 	private static ChatRoomRepository instance = new ChatRoomRepository();
 
 	// Needed for getPrivateChat().
