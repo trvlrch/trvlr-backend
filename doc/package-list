@@ -1,0 +1,7 @@
+ch.trvlr.backend
+ch.trvlr.backend.config
+ch.trvlr.backend.controller
+ch.trvlr.backend.interceptor
+ch.trvlr.backend.model
+ch.trvlr.backend.repository
+ch.trvlr.backend.service

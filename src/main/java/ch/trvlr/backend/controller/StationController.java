@@ -18,14 +18,27 @@ public class StationController {
 
 	private static StationRepository repository;
 
+	/**
+	 * Constructor for StationController
+	 */
 	public StationController() {
 		repository = StationRepository.getInstance();
 	}
 
+	/**
+	 * Constructor for StationController
+	 * <p>
+	 * Supports dependency injection for repositories
+	 */
 	public StationController(StationRepository repo) {
 		repository = repo;
 	}
 
+	/**
+	 * Get all stations sorted by name and weight
+	 *
+	 * @return List<Station>
+	 */
 	@RequestMapping(path = "/api/stations", method = RequestMethod.GET)
 	public List<Station> getAllStations() {
 		return repository.getAll("substr(name, 1, 1) ASC, weight DESC, name ASC");

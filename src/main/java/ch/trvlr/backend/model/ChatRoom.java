@@ -53,22 +53,50 @@ public class ChatRoom implements ISqlObject {
 		return this.createdOn;
 	}
 
+	/**
+	 * Get Message
+	 *
+	 * @param id int
+	 * @return Message
+	 */
 	public Message getMessage(int id) {
 		return this.messages.get(id);
 	}
 
+	/**
+	 * Get all messages
+	 *
+	 * @return List<Message>
+	 */
 	public List<Message> getAllMessages() {
 		return Collections.unmodifiableList(this.messages);
 	}
 
+	/**
+	 * Add a message object
+	 *
+	 * @param message Message
+	 */
 	public void addMessage(Message message) {
 		this.messages.add(message);
 	}
 
+	/**
+	 * Get a traveler by index
+	 *
+	 * @param index int
+	 * @return Traveler
+	 */
 	public Traveler getTraveler(int index) {
 		return this.travelers.get(index);
 	}
 
+	/**
+	 * Get a traveler by id
+	 *
+	 * @param id int
+	 * @return Traveler
+	 */
 	public Traveler getTravelerById(int id) {
 		for (Traveler traveler : this.travelers) {
 			if (traveler.getId() == id) {
@@ -78,6 +106,11 @@ public class ChatRoom implements ISqlObject {
 		return null;
 	}
 
+	/**
+	 * Get all travelers
+	 *
+	 * @return List<Traveler>
+	 */
 	public List<Traveler> getAllTravelers() {
 		return Collections.unmodifiableList(this.travelers);
 	}
@@ -88,10 +121,20 @@ public class ChatRoom implements ISqlObject {
 		}
 	}
 
+	/**
+	 * Remove a traveler form the chat room
+	 *
+	 * @param traveler Traveler
+	 */
 	public void removeTraveler(Traveler traveler) {
 		this.travelers.removeIf(current -> current.getId() == traveler.getId());
 	}
 
+	/**
+	 * Check if chat room is private
+	 *
+	 * @return Boolean
+	 */
 	public boolean isPrivate() {
 		return this.from == null && this.to == null;
 	}

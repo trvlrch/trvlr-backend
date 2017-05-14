@@ -36,6 +36,14 @@ public abstract class Repository<T extends ISqlObject> {
 
 	protected abstract void prepareStatement(PreparedStatement statement, T object) throws SQLException;
 
+	/**
+	 * Add a new object to the database
+	 * <p>
+	 * Returns the id of the newly created db entry or 0 if failure
+	 *
+	 * @param o T
+	 * @return int
+	 */
 	public int add(T o) {
 		String sql = this.queryBuilder.generateInsertQuery();
 
@@ -56,6 +64,14 @@ public abstract class Repository<T extends ISqlObject> {
 		return 0;
 	}
 
+	/**
+	 * Update an existing object in the database
+	 * <p>
+	 * Returns the id of the updated object or 0 if failure
+	 *
+	 * @param o T
+	 * @return int
+	 */
 	public int update(T o) {
 		String sql = this.queryBuilder.generateUpdateQuery();
 
@@ -75,6 +91,17 @@ public abstract class Repository<T extends ISqlObject> {
 		return 0;
 	}
 
+	/**
+	 * Save an object in the database
+	 * <p>
+	 * The method decides if the object already exists or not based on the id and adds or updates
+	 * the db entry.
+	 * <p>
+	 * Returns the id of the updated object or 0 if failure
+	 *
+	 * @param o T
+	 * @return int
+	 */
 	public int save(T o) {
 		if (o.getId() < 1)
 			return this.add(o);
@@ -82,8 +109,14 @@ public abstract class Repository<T extends ISqlObject> {
 			return this.update(o);
 	}
 
+	/**
+	 * Get an object from the database by id
+	 *
+	 * @param id int
+	 * @return T
+	 */
 	public T getById(int id) {
-		String sql = this.queryBuilder.generateSelectQuery(new String[] {"id"});
+		String sql = this.queryBuilder.generateSelectQuery(new String[]{"id"});
 
 
 		try {
@@ -97,23 +130,43 @@ public abstract class Repository<T extends ISqlObject> {
 		return null;
 	}
 
+	/**
+	 * Get all entries of a database table
+	 *
+	 * @return ArrayList<T>
+	 */
 	public ArrayList<T> getAll() {
 		return this.getAll(null, 0);
 	}
 
+	/**
+	 * Get all entries of a database table with an order by clause
+	 *
+	 * @return ArrayList<T>
+	 */
 	public ArrayList<T> getAll(String orderByClause) {
 		return this.getAll(orderByClause, 0);
 	}
 
+	/**
+	 * Get all entries of a database table with a limit
+	 *
+	 * @return ArrayList<T>
+	 */
 	public ArrayList<T> getAll(int limit) {
 		return this.getAll(null, limit);
 	}
 
+	/**
+	 * Get all entries of a database table with an order by clause and a limit
+	 *
+	 * @return ArrayList<T>
+	 */
 	public ArrayList<T> getAll(String orderByClause, int limit) {
 		String sql = this.queryBuilder.generateSelectQuery(orderByClause, limit);
 
 		try {
-			PreparedStatement p =  this.getDbConnection().prepareStatement(sql);
+			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
 			return getList(p);
 
 		} catch (SQLException e) {

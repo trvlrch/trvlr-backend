@@ -14,10 +14,22 @@ public class UserService {
 
 	private static AuthenticationInterface api;
 
+	/**
+	 * Constructor for UserService
+	 */
 	public UserService() {
 		api = new FirebaseService();
 	}
 
+	/**
+	 * Get a user by their token
+	 * <p>
+	 * Validates the user with the available api and if the token is invalid
+	 * the returned traveler object will be null.
+	 *
+	 * @param token String
+	 * @return Traveler
+	 */
 	public Traveler getUserByToken(String token) {
 		Traveler user = api.getUserByToken(token);
 		if (user != null) {

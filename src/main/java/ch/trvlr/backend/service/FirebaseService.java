@@ -28,6 +28,11 @@ public class FirebaseService extends ApiService implements AuthenticationInterfa
 
 	private static FirebaseAuth auth = null;
 
+	/**
+	 * Constructor for FirebaseService
+	 * <p>
+	 * Initializes the firebaseAuth sdk
+	 */
 	public FirebaseService() {
 		if (auth == null) {
 			FirebaseApp app = initialize();
@@ -35,6 +40,21 @@ public class FirebaseService extends ApiService implements AuthenticationInterfa
 				auth = FirebaseAuth.getInstance(app);
 			}
 		}
+	}
+
+	/**
+	 * Get a user by their token
+	 * <p>
+	 * If the token is invalid the returned traveler object will be null
+	 *
+	 * @param token String
+	 * @return Traveler
+	 */
+	public Traveler getUserByToken(String token) {
+		if (validateToken(token)) {
+			return getUserDetails(token);
+		}
+		return new Traveler();
 	}
 
 	private FirebaseApp initialize() {
@@ -72,13 +92,6 @@ public class FirebaseService extends ApiService implements AuthenticationInterfa
 
 	}
 
-	public Traveler getUserByToken(String token) {
-		if (validateToken(token)) {
-			return getUserDetails(token);
-		}
-		return new Traveler();
-	}
-
 	private Boolean validateToken(String token) {
 		Task task = FirebaseAuth.getInstance().verifyIdToken(token);
 
@@ -98,7 +111,7 @@ public class FirebaseService extends ApiService implements AuthenticationInterfa
 
 			JSONObject result = this.post(url, json);
 			JSONArray users = result.getJSONArray("users");
-			
+
 			if (users.length() > 0) {
 				JSONObject user = (JSONObject) users.get(0);
 				// TODO move to traveler model

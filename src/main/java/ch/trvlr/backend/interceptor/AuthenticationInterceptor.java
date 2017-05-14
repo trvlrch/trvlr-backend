@@ -30,6 +30,11 @@ import java.util.regex.Pattern;
 public class AuthenticationInterceptor extends ChannelInterceptorAdapter {
 	private MessageChannel clientOutboundChannel;
 
+	/**
+	 * Constructor for AuthenticationInterceptor
+	 *
+	 * @param clientOutboundChannel MessageChannel
+	 */
 	public AuthenticationInterceptor(MessageChannel clientOutboundChannel) {
 		super();
 		this.clientOutboundChannel = clientOutboundChannel;

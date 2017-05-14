@@ -26,18 +26,36 @@ public class PublicChatRoomController {
 	private static TravelerRepository travelerRepository;
 	private static StationRepository stationRepository;
 
+	/**
+	 * Constructor for PublicChatRoomController
+	 */
 	public PublicChatRoomController() {
 		chatRoomRepository = ChatRoomRepository.getInstance();
 		travelerRepository = TravelerRepository.getInstance();
 		stationRepository = StationRepository.getInstance();
 	}
 
+	/**
+	 * Constructor for PublicChatRoomController
+	 * <p>
+	 * Supports dependency injection for repositories
+	 */
 	public PublicChatRoomController(ChatRoomRepository chatRepo, TravelerRepository travelerRepo, StationRepository stationRepo) {
 		chatRoomRepository = chatRepo;
 		travelerRepository = travelerRepo;
 		stationRepository = stationRepo;
 	}
 
+	/**
+	 * Get all public chats
+	 * <p>
+	 * The resulting list can be limited to a certain number of items and can be ordered by popularity.
+	 * The orderby parameter currently only supports "popularity"
+	 *
+	 * @param orderby String
+	 * @param limit   int
+	 * @return List<ChatRoom>
+	 */
 	@RequestMapping(path = "/api/public-chats", method = RequestMethod.GET)
 	public List<ChatRoom> getAllPublicChats(@RequestParam(value = "orderby", required = false) String orderby, @RequestParam(value = "limit", required = false, defaultValue = "0") int limit) {
 		List<ChatRoom> rooms;
@@ -50,6 +68,15 @@ public class PublicChatRoomController {
 		return rooms;
 	}
 
+	/**
+	 * Create a public chat room
+	 * <p>
+	 * The method expects a POST request with a JSON payload.
+	 * e.g. {"from": "Zurich", "to": "Hoeri"}
+	 *
+	 * @param postPayload String
+	 * @return ChatRoom
+	 */
 	@ApiOperation(value = "Create private chat",
 			notes = "The endpoint expects a json request body a list containing the from and to station names e.g. {\"from\": \"Zurich\", \"to\": \"Hoeri\"} ")
 	@RequestMapping(path = "/api/public-chats", method = RequestMethod.POST, consumes = "application/json")
@@ -74,16 +101,38 @@ public class PublicChatRoomController {
 		}
 	}
 
+	/**
+	 * Get a public chat room by id
+	 *
+	 * @param roomId int
+	 * @return ChatRoom
+	 */
 	@RequestMapping(path = "/api/public-chats/{roomId}", method = RequestMethod.GET)
 	public ChatRoom getPublicChat(@PathVariable int roomId) {
 		return chatRoomRepository.getById(roomId);
 	}
 
+	/**
+	 * Get all travelers for a public chat room
+	 *
+	 * @param roomId int
+	 * @return List<Traveler>
+	 */
 	@RequestMapping(path = "/api/public-chats/{roomId}/travelers", method = RequestMethod.GET)
 	public List<Traveler> getAllTravelersForPublicChat(@PathVariable int roomId) {
 		return travelerRepository.getAllTravelersForChat(roomId);
 	}
 
+	/**
+	 * Leave a public chat room
+	 * <p>
+	 * The method expects a POST request with a JSON payload.
+	 * e.g. {"travelerId": 1}
+	 *
+	 * @param roomId      int
+	 * @param postPayload String
+	 * @return Boolean
+	 */
 	@ApiOperation(value = "Leave public chat",
 			notes = "The endpoint expects a json request body containing the travelerId e.g. {\"travelerId\": 1} ")
 	@RequestMapping(path = "/api/public-chats/{roomId}/leave", method = RequestMethod.POST, consumes = "application/json")
@@ -95,12 +144,27 @@ public class PublicChatRoomController {
 		return (chatRoomRepository.save(room) > 0);
 	}
 
+	/**
+	 * Find chat rooms for a connection (from, to)
+	 *
+	 * @param from String
+	 * @param to   String
+	 * @return List<ChatRoom>
+	 */
 	@RequestMapping(path = "/api/public-chats/search", method = RequestMethod.GET)
 	public List<ChatRoom> findChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {
 		return chatRoomRepository.findChatRoomsForConnection(from, to);
 	}
 
-
+	/**
+	 * Join a public chat room for a connection (from, to)
+	 * <p>
+	 * If the connection does not exist yet, a new one will be created.
+	 *
+	 * @param from String
+	 * @param to   String
+	 * @return List<ChatRoom>
+	 */
 	@RequestMapping(path = "/api/public-chats/join", method = RequestMethod.GET)
 	public List<ChatRoom> joinChatRoomsForConnection(@RequestParam(value = "from") String from, @RequestParam(value = "to") String to) {
 		List<ChatRoom> rooms = chatRoomRepository.findChatRoomsForConnection(from, to);
@@ -124,6 +188,12 @@ public class PublicChatRoomController {
 		return rooms;
 	}
 
+	/**
+	 * Get all publich chat rooms of a traveler
+	 *
+	 * @param travelerId int
+	 * @return List<ChatRoom>
+	 */
 	@RequestMapping(path = "/api/public-chats/list/{travelerId}", method = RequestMethod.GET)
 	public List<ChatRoom> getPublicChatsByTraveler(@PathVariable int travelerId) {
 		ArrayList<ChatRoom> rooms = chatRoomRepository.getByTravelerId(travelerId);

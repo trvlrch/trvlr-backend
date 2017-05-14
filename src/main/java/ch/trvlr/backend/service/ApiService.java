@@ -1,6 +1,5 @@
 package ch.trvlr.backend.service;
 
-import ch.trvlr.backend.model.Traveler;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
@@ -18,7 +17,7 @@ import java.net.URL;
  */
 abstract class ApiService {
 
-	protected JSONObject post(URL url, String json_body) throws IOException{
+	protected JSONObject post(URL url, String json_body) throws IOException {
 
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setConnectTimeout(5000);

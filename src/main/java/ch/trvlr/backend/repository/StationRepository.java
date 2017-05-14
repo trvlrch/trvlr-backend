@@ -16,6 +16,11 @@ public class StationRepository extends Repository<Station> {
 		});
 	}
 
+	/**
+	 * Get the current StationRepository instance
+	 *
+	 * @return StationRepository
+	 */
 	public static StationRepository getInstance() {
 		return StationRepository.instance;
 	}
@@ -35,8 +40,14 @@ public class StationRepository extends Repository<Station> {
 		statement.setInt(2, object.getWeight());
 	}
 
+	/**
+	 * Get a station by their name
+	 *
+	 * @param name String
+	 * @return Station
+	 */
 	public Station getByName(String name) {
-		String sql = this.getQueryBuilder().generateSelectQuery(new String[] {"name"});
+		String sql = this.getQueryBuilder().generateSelectQuery(new String[]{"name"});
 
 		try {
 			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
