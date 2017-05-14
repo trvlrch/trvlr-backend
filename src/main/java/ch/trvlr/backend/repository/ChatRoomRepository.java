@@ -179,7 +179,7 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
                 " FROM " + this.getTableName() + " as t " +
                 " JOIN chat_room_traveler as c ON t.`id` = c.`chat_room_id` AND c.`traveler_id` = ?" +
                 " LEFT JOIN station s_from on s_from.id = t.`from`" +
-                " LEFT JOIN station s_to on s_to.id = r.`to`" +
+                " LEFT JOIN station s_to on s_to.id = t.`to`" +
                 " ORDER BY CONCAT(s_from.name, s_to.name) ASC";
 
         try {
