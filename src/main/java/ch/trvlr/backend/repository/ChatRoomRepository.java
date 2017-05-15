@@ -16,12 +16,14 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 	private static ChatRoomRepository instance = new ChatRoomRepository();
 
 	// Needed for getPrivateChat().
-	private static TravelerRepository travelerInstance = new TravelerRepository();
+	private static TravelerRepository travelerInstance;
 
 	protected ChatRoomRepository() {
 		super("chat_room", new String[]{
 				"id", "from", "to", "created_on"
 		});
+
+		travelerInstance =  TravelerRepository.getInstance();
 	}
 
 	/**
