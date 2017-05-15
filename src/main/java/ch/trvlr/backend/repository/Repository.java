@@ -175,6 +175,28 @@ public abstract class Repository<T extends ISqlObject> {
 		}
 	}
 
+	/**
+	 * Get all entries of a database table with an order by clause and a limit
+	 *
+	 * @return ArrayList<T>
+	 */
+	public ArrayList<T> getAll(String orderByClause, boolean asciiOnly) {
+		String sql = this.queryBuilder.generateSelectQuery(orderByClause, 0);
+
+		if (asciiOnly) {
+			sql += " COLLATE ascii_general_ci";
+		}
+
+		try {
+			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			return getList(p);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	protected T getSingle(PreparedStatement p) {
 		try {
 			ResultSet rs = p.executeQuery();
