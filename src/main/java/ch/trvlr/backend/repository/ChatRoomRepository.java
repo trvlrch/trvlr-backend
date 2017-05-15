@@ -42,7 +42,10 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 
 		// TODO find a better to get different chat types
 
-		ArrayList<Message> messages = MessageRepository.getInstance().getAllMessagesForChat(id);
+		// Don't load messages for now, to prevent memory issues
+		// ArrayList<Message> messages = MessageRepository.getInstance().getAllMessagesForChat(id);
+		
+		ArrayList<Message> messages = new ArrayList<>();
 		ArrayList<Traveler> travelers = TravelerRepository.getInstance().getAllTravelersForChat(id);
 		Station from = StationRepository.getInstance().getById(fromId);
 		Station to = StationRepository.getInstance().getById(toId);
