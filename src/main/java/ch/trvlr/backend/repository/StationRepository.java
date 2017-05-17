@@ -2,9 +2,7 @@ package ch.trvlr.backend.repository;
 
 import ch.trvlr.backend.model.Station;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class StationRepository extends Repository<Station> {
 
@@ -47,16 +45,22 @@ public class StationRepository extends Repository<Station> {
 	 * @return Station
 	 */
 	public Station getByName(String name) {
+		Connection conn = null;
+		PreparedStatement p = null;
 		String sql = this.getQueryBuilder().generateSelectQuery(new String[]{"name"});
+		Station station = null;
 
 		try {
-			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
 			p.setString(1, name);
-			return getSingle(p);
+			station = getSingle(p);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(null, p, conn);
 		}
 
-		return null;
+		return station;
 	}
 }

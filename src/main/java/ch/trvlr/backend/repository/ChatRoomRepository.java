@@ -2,10 +2,7 @@ package ch.trvlr.backend.repository;
 
 import ch.trvlr.backend.model.*;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -131,34 +128,45 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 	}
 
 	private void save_traveler_relations(ChatRoom o) {
+		Connection conn = null;
+		PreparedStatement p = null;
+
 		List<Traveler> travelers = o.getAllTravelers();
 		if (travelers != null) {
 			String[] fields = new String[]{"chat_room_id", "traveler_id"};
 			String sql = this.getQueryBuilder().generateInsertQuery("chat_room_traveler", fields);
-			for (Traveler traveler : travelers) {
 
+			for (Traveler traveler : travelers) {
 				try {
-					PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+					conn = this.getDbConnection();
+					p = conn.prepareStatement(sql);
 					p.setInt(1, o.getId());
 					p.setInt(2, traveler.getId());
 					p.executeUpdate();
 				} catch (SQLException e) {
 					e.printStackTrace();
+				} finally {
+					closeConnection(null, p, conn);
 				}
-
 			}
 		}
 	}
 
 	private void delete_traveler_relations(ChatRoom o) {
+		Connection conn = null;
+		PreparedStatement p = null;
 		String[] fields = new String[]{"chat_room_id"};
 		String sql = this.getQueryBuilder().generateDeleteQuery("chat_room_traveler", fields);
+
 		try {
-			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			conn = getDbConnection();
+			p = conn.prepareStatement(sql);
 			p.setInt(1, o.getId());
 			p.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(null, p, conn);
 		}
 
 	}
@@ -172,6 +180,9 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 	 * @return ArrayList<ChatRoom>
 	 */
 	public ArrayList<ChatRoom> getMostPopular(int limit) {
+		Connection conn = null;
+		PreparedStatement p = null;
+		ArrayList<ChatRoom> chatRooms = null;
 		String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("c") +
 				", (SELECT COUNT(id) from chat_room_traveler as ct WHERE ct.chat_room_id  = c.id) AS trvlr_count " +
 				" FROM " + this.getTableName() + " as c" +
@@ -181,13 +192,17 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 				" LIMIT ? ";
 
 		try {
-			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
 			p.setInt(1, limit);
-			return getList(p);
+			chatRooms = getList(p);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(null, p, conn);
 		}
-		return null;
+
+		return chatRooms;
 	}
 
 	/**
@@ -200,21 +215,27 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 	 * @return ArrayList<ChatRoom>
 	 */
 	public ArrayList<ChatRoom> findChatRoomsForConnection(String from, String to) {
+		Connection conn = null;
+		PreparedStatement p = null;
 		String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("c") +
 				" FROM " + this.getTableName() + " as c, station as s " +
 				" WHERE  c.`from` = s.`id` AND s.`name` = ?" +
 				" AND c.`to` IN (SELECT `id` FROM station WHERE `name` = ?)";
+		ArrayList<ChatRoom> chatRooms = null;
 
 		try {
-			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			conn = getDbConnection();
+			p = conn.prepareStatement(sql);
 			p.setString(1, from);
 			p.setString(2, to);
-			return getList(p);
+			chatRooms = getList(p);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(null, p, conn);
 		}
 
-		return null;
+		return chatRooms;
 	}
 
 	/**
@@ -224,6 +245,9 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 	 * @return ArrayList<ChatRoom>
 	 */
 	public ArrayList<ChatRoom> getByTravelerId(int travelerId) {
+		Connection conn = null;
+		PreparedStatement p = null;
+		ArrayList<ChatRoom> chatRooms = null;
 		String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("t") +
 				" FROM " + this.getTableName() + " as t " +
 				" JOIN chat_room_traveler as c ON t.`id` = c.`chat_room_id` AND c.`traveler_id` = ?" +
@@ -232,14 +256,17 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 				" ORDER BY CONCAT(s_from.name, s_to.name) ASC";
 
 		try {
-			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
 			p.setInt(1, travelerId);
-			return getList(p);
+			chatRooms = getList(p);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(null, p, conn);
 		}
 
-		return null;
+		return chatRooms;
 	}
 
 	/**
@@ -252,6 +279,10 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 	 * @return ChatRoom
 	 */
 	public ChatRoom getOrCreatePrivateChat(int travelerId1, int travelerId2) {
+		Connection conn = null;
+		PreparedStatement p = null;
+		ResultSet rs = null;
+		ChatRoom chatRoom = null;
 		String sql = "" +
 				" SELECT DISTINCT r.id" +
 				" FROM chat_room AS r" +
@@ -263,28 +294,31 @@ public class ChatRoomRepository extends Repository<ChatRoom> {
 				"  AND `to` IS NULL";
 
 		try {
-			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
 			p.setInt(1, travelerId1);
 			p.setInt(2, travelerId2);
 
-			ResultSet rs = p.executeQuery();
+			rs = p.executeQuery();
 
 			if (rs.isBeforeFirst() && rs.next()) {
 				// Private chat room already exists, return this chat room.
-				return this.getById(rs.getInt("id"));
+				chatRoom = this.getById(rs.getInt("id"));
 			} else {
 				// Private chat room doesn't exist yet, create it.
 				Traveler t1 = travelerInstance.getById(travelerId1);
 				Traveler t2 = travelerInstance.getById(travelerId2);
-				PrivateChat room = new PrivateChat(t1, t2);
-				int id = this.save(room);
-				room.setId(id);
-				return room;
+
+				chatRoom = new PrivateChat(t1, t2);
+				int id = this.save(chatRoom);
+				chatRoom.setId(id);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(rs, p, conn);
 		}
 
-		return null;
+		return chatRoom;
 	}
 }

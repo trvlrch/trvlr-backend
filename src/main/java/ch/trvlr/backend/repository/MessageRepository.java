@@ -3,9 +3,7 @@ package ch.trvlr.backend.repository;
 import ch.trvlr.backend.model.Message;
 import ch.trvlr.backend.model.Traveler;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -53,17 +51,28 @@ public class MessageRepository extends Repository<Message> {
 	 * @return ArrayList<Message>
 	 * @throws SQLException
 	 */
-	public ArrayList<Message> getAllMessagesForChat(int chatId) throws SQLException {
+	public ArrayList<Message> getAllMessagesForChat(int chatId) {
+		Connection conn = null;
+		PreparedStatement p = null;
+		ResultSet rs = null;
 		ArrayList<Message> result = new ArrayList<>();
 		String sql = this.getQueryBuilder().generateSelectQuery(new String[]{"chat_room_id"});
 
-		PreparedStatement p = this.getDbConnection().prepareStatement(sql);
-		p.setInt(1, chatId);
+		try {
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
+			p.setInt(1, chatId);
 
-		ResultSet rs = p.executeQuery();
-		while (rs.next()) {
-			result.add(this.convertToBusinessObject(rs));
+			rs = p.executeQuery();
+			while (rs.next()) {
+				result.add(this.convertToBusinessObject(rs));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			closeConnection(rs, p, conn);
 		}
+
 		return result;
 	}
 }

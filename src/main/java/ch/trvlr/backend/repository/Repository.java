@@ -7,9 +7,10 @@ public abstract class Repository<T extends ISqlObject> {
 
 	private String tableName;
 	private String[] fields;
-	private Connection dbConnection;
 
 	private QueryBuilder queryBuilder;
+
+	private String connectionString;
 
 	protected Repository(String tableName, String[] fields) {
 		this.tableName = tableName;
@@ -21,15 +22,9 @@ public abstract class Repository<T extends ISqlObject> {
 		String user = System.getenv("DB_USER");
 		String password = System.getenv("DB_PASSWORD");
 
-		String connectionString = dbname + "?user=" + user;
-		connectionString += (password != null) ? "&password=" + password : "";
-		connectionString += "&useUnicode=true&characterEncoding=utf-8";
-
-		try {
-			this.dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + connectionString);
-		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
-		}
+		this.connectionString = dbname + "?user=" + user;
+		this.connectionString += (password != null) ? "&password=" + password : "";
+		this.connectionString += "&useUnicode=true&characterEncoding=utf-8";
 	}
 
 	protected abstract T convertToBusinessObject(ResultSet rs) throws SQLException;
@@ -45,23 +40,30 @@ public abstract class Repository<T extends ISqlObject> {
 	 * @return int
 	 */
 	public int add(T o) {
+		Connection conn = null;
+		PreparedStatement p = null;
+		ResultSet rs = null;
 		String sql = this.queryBuilder.generateInsertQuery();
+		int id = 0;
 
 		try {
-			PreparedStatement st = this.getDbConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-			this.prepareStatement(st, o);
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+			this.prepareStatement(p, o);
 
-			st.executeUpdate();
+			p.executeUpdate();
 
-			ResultSet keys = st.getGeneratedKeys();
-			if (keys.next()) {
-				return keys.getInt(1);
+			rs = p.getGeneratedKeys();
+			if (rs.next()) {
+				id = rs.getInt(1);
 			}
 		} catch (NullPointerException | SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(rs, p, conn);
 		}
 
-		return 0;
+		return id;
 	}
 
 	/**
@@ -73,22 +75,26 @@ public abstract class Repository<T extends ISqlObject> {
 	 * @return int
 	 */
 	public int update(T o) {
+		Connection conn = null;
+		PreparedStatement p = null;
 		String sql = this.queryBuilder.generateUpdateQuery();
+		int id = 0;
 
 		try {
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
+			this.prepareStatement(p, o);
+			p.setInt(this.fields.length, o.getId());
+			p.executeUpdate();
 
-			PreparedStatement st = this.getDbConnection().prepareStatement(sql);
-			this.prepareStatement(st, o);
-			st.setInt(this.fields.length, o.getId());
-			st.executeUpdate();
-
-			return o.getId();
-
+			id = o.getId();
 		} catch (NullPointerException | SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(null, p, conn);
 		}
 
-		return 0;
+		return id;
 	}
 
 	/**
@@ -116,18 +122,23 @@ public abstract class Repository<T extends ISqlObject> {
 	 * @return T
 	 */
 	public T getById(int id) {
+		Connection conn = null;
+		PreparedStatement p = null;
 		String sql = this.queryBuilder.generateSelectQuery(new String[]{"id"});
-
+		T t = null;
 
 		try {
-			PreparedStatement p = this.dbConnection.prepareStatement(sql);
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
 			p.setInt(1, id);
-			return getSingle(p);
+			t = getSingle(p);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			this.closeConnection(null, p, conn);
 		}
 
-		return null;
+		return t;
 	}
 
 	/**
@@ -163,47 +174,89 @@ public abstract class Repository<T extends ISqlObject> {
 	 * @return ArrayList<T>
 	 */
 	public ArrayList<T> getAll(String orderByClause, int limit) {
+		Connection conn = null;
+		ArrayList<T> entries = null;
+		PreparedStatement p = null;
 		String sql = this.queryBuilder.generateSelectQuery(orderByClause, limit);
 
 		try {
-			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
-			return getList(p);
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
+			entries = getList(p);
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
+		} finally {
+			closeConnection(null, p, conn);
 		}
+
+		return entries;
 	}
 
 	protected T getSingle(PreparedStatement p) {
+		ResultSet rs = null;
+		T t = null;
+
 		try {
-			ResultSet rs = p.executeQuery();
+			rs = p.executeQuery();
 			if (rs.next()) {
-				return convertToBusinessObject(rs);
+				t = convertToBusinessObject(rs);
 			}
 		} catch (NullPointerException | SQLException e) {
 			e.printStackTrace();
+		} finally {
+			this.closeConnection(rs, null, null);
 		}
-		return null;
+
+		return t;
 	}
 
 	protected ArrayList<T> getList(PreparedStatement p) {
+		ResultSet rs = null;
 		ArrayList<T> result = new ArrayList<>();
 
 		try {
-			ResultSet rs = p.executeQuery();
+			rs = p.executeQuery();
 			while (rs.next()) {
 				result.add(this.convertToBusinessObject(rs));
 			}
-			return result;
 		} catch (NullPointerException | SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(rs, null, null);
 		}
-		return null;
+
+		return result;
 	}
 
 	protected Connection getDbConnection() {
-		return this.dbConnection;
+		Connection conn = null;
+
+		try {
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + connectionString);
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+
+		return conn;
+	}
+
+	protected void closeConnection(ResultSet rs, PreparedStatement p, Connection conn) {
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) { /* ignored */}
+		}
+		if (p != null) {
+			try {
+				p.close();
+			} catch (SQLException e) { /* ignored */}
+		}
+		if (conn != null) {
+			try {
+				conn.close();
+			} catch (SQLException e) { /* ignored */}
+		}
 	}
 
 	protected String getTableName() {

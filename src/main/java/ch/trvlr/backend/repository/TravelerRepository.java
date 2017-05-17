@@ -2,9 +2,7 @@ package ch.trvlr.backend.repository;
 
 import ch.trvlr.backend.model.Traveler;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class TravelerRepository extends Repository<Traveler> {
@@ -53,17 +51,23 @@ public class TravelerRepository extends Repository<Traveler> {
 	 * @return
 	 */
 	public Traveler getByEmail(String email) {
+		Connection conn = null;
+		PreparedStatement p = null;
 		String sql = this.getQueryBuilder().generateSelectQuery(new String[]{"email"});
+		Traveler traveler = null;
 
 		try {
-			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
 			p.setString(1, email);
-			return getSingle(p);
+			traveler = getSingle(p);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(null, p, conn);
 		}
 
-		return null;
+		return traveler;
 	}
 
 	/**
@@ -73,17 +77,23 @@ public class TravelerRepository extends Repository<Traveler> {
 	 * @return Traveler
 	 */
 	public Traveler getByFirebaseId(String firebaseId) {
+		Connection conn = null;
+		PreparedStatement p = null;
 		String sql = this.getQueryBuilder().generateSelectQuery(new String[]{"uid"});
+		Traveler traveler = null;
 
 		try {
-			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
 			p.setString(1, firebaseId);
-			return getSingle(p);
+			traveler = getSingle(p);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(null, p, conn);
 		}
 
-		return null;
+		return traveler;
 	}
 
 	/**
@@ -93,18 +103,24 @@ public class TravelerRepository extends Repository<Traveler> {
 	 * @return ArrayList<Traveler>
 	 */
 	public ArrayList<Traveler> getAllTravelersForChat(int chatId) {
+		Connection conn = null;
+		PreparedStatement p = null;
 		String sql = "SELECT " + this.getQueryBuilder().getFieldsAsStringForSelectWithPrefix("t") +
 				" FROM " + this.getTableName() + " as t, chat_room_traveler as c " +
 				" WHERE t.`id` = c.`traveler_id` AND c.`chat_room_id` = ?";
+		ArrayList<Traveler> travelers = null;
 
 		try {
-			PreparedStatement p = this.getDbConnection().prepareStatement(sql);
+			conn = this.getDbConnection();
+			p = conn.prepareStatement(sql);
 			p.setInt(1, chatId);
-			return getList(p);
+			travelers = getList(p);
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			closeConnection(null, p, conn);
 		}
 
-		return null;
+		return travelers;
 	}
 }
