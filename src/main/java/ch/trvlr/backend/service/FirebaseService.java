@@ -113,23 +113,29 @@ public class FirebaseService extends ApiService implements AuthenticationInterfa
 			JSONArray users = result.getJSONArray("users");
 
 			if (users.length() > 0) {
+        String firstName = "";
+        String lastName = "";
+
 				JSONObject user = (JSONObject) users.get(0);
 				// TODO move to traveler model
-				String[] name = user.getString("displayName").split(" ");
-				String firstName = "";
-				String lastName = "";
 
-				if (name.length == 1) {
-					firstName = name[0];
-				} else if (name.length > 1) {
-					firstName = name[0];
+        // Try to set the first and last name if we have that information.
+        if (user.getString("displayName") != null
+            && user.getString("displayName").trim().length() > 0) {
+          String[] name = user.getString("displayName").split(" ");
 
-					for (int i = 1; i < name.length; i++) {
-						lastName += " " + name[i];
-					}
+          if (name.length == 1) {
+            firstName = name[0].trim();
+          } else if (name.length > 1) {
+            firstName = name[0];
 
-					lastName = lastName.trim();
-				}
+            for (int i = 1; i < name.length; i++) {
+              lastName += " " + name[i];
+            }
+
+            lastName = lastName.trim();
+          }
+        }
 
 				return new Traveler(firstName, lastName, user.getString("email"), user.getString("localId"));
 			}

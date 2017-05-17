@@ -11,6 +11,8 @@ import java.security.Principal;
  */
 public class Traveler implements Principal, ISqlObject {
 
+	public static String DEFAULT_NAME = "Traveler";
+
 	private int id;
 	private String firstName;
 	private String lastName;

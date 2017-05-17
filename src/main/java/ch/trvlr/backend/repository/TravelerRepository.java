@@ -123,4 +123,16 @@ public class TravelerRepository extends Repository<Traveler> {
 
 		return travelers;
 	}
+
+	@Override
+	public int add(Traveler traveler) {
+		int id = super.add(traveler);
+
+    if (traveler.getFirstName().length() == 0 && traveler.getLastName().length() == 0) {
+      traveler.setFirstName(Traveler.DEFAULT_NAME + " " + traveler.getId());
+      update(traveler);
+    }
+
+		return id;
+	}
 }
