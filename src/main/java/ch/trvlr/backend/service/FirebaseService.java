@@ -116,7 +116,22 @@ public class FirebaseService extends ApiService implements AuthenticationInterfa
 				JSONObject user = (JSONObject) users.get(0);
 				// TODO move to traveler model
 				String[] name = user.getString("displayName").split(" ");
-				return new Traveler(name[0], name[1], user.getString("email"), user.getString("localId"));
+				String firstName = "";
+				String lastName = "";
+
+				if (name.length == 1) {
+					firstName = name[0];
+				} else if (name.length > 1) {
+					firstName = name[0];
+
+					for (int i = 1; i < name.length; i++) {
+						lastName += " " + name[i];
+					}
+
+					lastName = lastName.trim();
+				}
+
+				return new Traveler(firstName, lastName, user.getString("email"), user.getString("localId"));
 			}
 
 		} catch (IOException e) {
