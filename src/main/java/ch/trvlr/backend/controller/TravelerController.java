@@ -2,10 +2,9 @@ package ch.trvlr.backend.controller;
 
 import ch.trvlr.backend.model.Traveler;
 import ch.trvlr.backend.repository.TravelerRepository;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import ch.trvlr.backend.service.UserService;
+import org.json.JSONObject;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * trvlr-backend
@@ -42,6 +41,27 @@ public class TravelerController {
 	@RequestMapping(path = "/api/traveler/{firebaseId}", method = RequestMethod.GET)
 	public Traveler getUserDataByFirebaseId(@PathVariable String firebaseId) {
 		Traveler traveler = repository.getByFirebaseId(firebaseId);
+
+		return traveler;
+	}
+
+	/**
+	 * Auth user by firebase ID or token
+	 *
+	 * @return Traveler
+	 */
+	@RequestMapping(path = "/api/traveler/auth", method = RequestMethod.POST, consumes = "application/json")
+	public Traveler authUser(@RequestBody String postPayload) {
+		JSONObject json = new JSONObject(postPayload);
+		String firebaseUid = json.getString("firebaseUid");
+		String firebaseToken = json.getString("firebaseToken");
+
+		Traveler traveler = repository.getByFirebaseId(firebaseToken);
+
+		if (traveler == null && firebaseToken.length() > 0) {
+			UserService service = new UserService();
+			traveler = service.getUserByToken(firebaseToken);
+		}
 
 		return traveler;
 	}
