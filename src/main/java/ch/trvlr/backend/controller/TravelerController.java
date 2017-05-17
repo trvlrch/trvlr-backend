@@ -2,7 +2,6 @@ package ch.trvlr.backend.controller;
 
 import ch.trvlr.backend.model.Traveler;
 import ch.trvlr.backend.repository.TravelerRepository;
-import ch.trvlr.backend.service.UserService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,12 +42,6 @@ public class TravelerController {
 	@RequestMapping(path = "/api/traveler/{firebaseId}", method = RequestMethod.GET)
 	public Traveler getUserDataByFirebaseId(@PathVariable String firebaseId) {
 		Traveler traveler = repository.getByFirebaseId(firebaseId);
-
-		if (traveler == null) {
-			// User has not been synched to the DB yet, try to synch him/her now.
-			UserService service = new UserService();
-			traveler = service.getUserByToken(firebaseId);
-		}
 
 		return traveler;
 	}
