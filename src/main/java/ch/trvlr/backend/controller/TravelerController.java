@@ -53,10 +53,10 @@ public class TravelerController {
 	@RequestMapping(path = "/api/traveler/auth", method = RequestMethod.POST, consumes = "application/json")
 	public Traveler authUser(@RequestBody String postPayload) {
 		JSONObject json = new JSONObject(postPayload);
-		String firebaseUid = json.getString("firebaseUid");
+		String firebaseId = json.getString("firebaseId");
 		String firebaseToken = json.getString("firebaseToken");
 
-		Traveler traveler = repository.getByFirebaseId(firebaseToken);
+		Traveler traveler = repository.getByFirebaseId(firebaseId);
 
 		if (traveler == null && firebaseToken.length() > 0) {
 			UserService service = new UserService();
